@@ -1,0 +1,169 @@
+---
+import { CROSSWORD_SOURCES } from '../lib/api';
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="12" height="12" rx="2" fill="#6c5ce7"/>
+            <rect x="18" y="2" width="12" height="12" rx="2" fill="#00cec9"/>
+            <rect x="2" y="18" width="12" height="12" rx="2" fill="#00cec9"/>
+            <rect x="18" y="18" width="12" height="12" rx="2" fill="#6c5ce7"/>
+          </svg>
+          <span>Crossword<span class="footer-logo-highlight">Solver</span></span>
+        </a>
+        <p class="footer-desc">
+          Your daily destination for crossword answers, solutions, and solver tools.
+          Covering NYT, Guardian, LA Times, Atlantic, USA Today, and more.
+        </p>
+      </div>
+
+      <div class="footer-links-group">
+        <h4 class="footer-links-title">Popular Puzzles</h4>
+        <div class="footer-links">
+          <a href="/nyt-crossword-answer-today">NYT Crossword</a>
+          <a href="/nyt-mini-crossword-answer-today">NYT Mini</a>
+          <a href="/crossword-solver">Crossword Solver</a>
+          <a href="/atlantic-crossword-answer-today">Atlantic</a>
+          <a href="/guardian-quick-crossword-answer-today">Guardian Quick</a>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <h4 class="footer-links-title">More Puzzles</h4>
+        <div class="footer-links">
+          <a href="/guardian-cryptic-crossword-answer-today">Guardian Cryptic</a>
+          <a href="/la-times-crossword-answer-today">LA Times</a>
+          <a href="/usa-today-crossword-answer-today">USA Today</a>
+          <a href="/washington-post-crossword-answer-today">Washington Post</a>
+          <a href="/guardian-prize-crossword-answer-today">Guardian Prize</a>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <h4 class="footer-links-title">Tools</h4>
+        <div class="footer-links">
+          <a href="/crossword-solver">Crossword Solver</a>
+          <a href="/nyt-crossword-answer-today">Daily Answers</a>
+          <a href="/nyt-mini-crossword-answer-today">Mini Answers</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {new Date().getFullYear()} CrosswordSolver. All rights reserved.</p>
+      <p class="footer-disclaimer">Not affiliated with The New York Times, The Guardian, or any other puzzle publisher.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border);
+    padding: 48px 0 24px;
+    margin-top: 64px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 40px;
+  }
+
+  .footer-brand {
+    max-width: 280px;
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+  }
+
+  .footer-logo-highlight {
+    color: var(--color-accent);
+  }
+
+  .footer-desc {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .footer-links-title {
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-links a {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    transition: color 0.2s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-bottom {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-bottom p {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+  }
+
+  .footer-disclaimer {
+    font-style: italic;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .footer-brand {
+      grid-column: 1 / -1;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

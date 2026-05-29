@@ -1,0 +1,107 @@
+---
+---
+
+<div class="skeleton-puzzle">
+  <div class="skeleton-puzzle-header">
+    <div class="skeleton skeleton-badge"></div>
+    <div class="skeleton skeleton-title"></div>
+    <div class="skeleton skeleton-stats"></div>
+  </div>
+  <div class="skeleton-puzzle-grid">
+    <div class="skeleton-section">
+      <div class="skeleton skeleton-section-title"></div>
+      {Array.from({length: 5}).map(() => (
+        <div class="skeleton-clue-row">
+          <div class="skeleton skeleton-num"></div>
+          <div class="skeleton skeleton-clue"></div>
+          <div class="skeleton skeleton-answer"></div>
+        </div>
+      ))}
+    </div>
+    <div class="skeleton-section">
+      <div class="skeleton skeleton-section-title"></div>
+      {Array.from({length: 5}).map(() => (
+        <div class="skeleton-clue-row">
+          <div class="skeleton skeleton-num"></div>
+          <div class="skeleton skeleton-clue"></div>
+          <div class="skeleton skeleton-answer"></div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .skeleton-puzzle {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .skeleton-puzzle-header {
+    margin-bottom: 32px;
+  }
+
+  .skeleton-badge {
+    width: 200px;
+    height: 24px;
+    margin-bottom: 16px;
+  }
+
+  .skeleton-title {
+    width: 60%;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+
+  .skeleton-stats {
+    width: 200px;
+    height: 20px;
+  }
+
+  .skeleton-puzzle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .skeleton-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .skeleton-section-title {
+    width: 100px;
+    height: 20px;
+    margin-bottom: 16px;
+  }
+
+  .skeleton-clue-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 80px;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .skeleton-num {
+    width: 24px;
+    height: 16px;
+  }
+
+  .skeleton-clue {
+    height: 16px;
+  }
+
+  .skeleton-answer {
+    width: 60px;
+    height: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .skeleton-puzzle-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

@@ -1,0 +1,494 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { CROSSWORD_SOURCES } from '../lib/api';
+---
+
+<MainLayout title="Home">
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">Daily Puzzle Answers</div>
+        <h1 class="hero-title">
+          Crossword Answers<br/>
+          <span class="hero-highlight">&amp; Solver</span>
+        </h1>
+        <p class="hero-desc">
+          Get today's crossword answers for NYT, Guardian, LA Times, Atlantic, and more.
+          Use our powerful solver to crack any clue with pattern matching.
+        </p>
+        <div class="hero-actions">
+          <a href="/crossword-solver" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+            Open Solver
+          </a>
+          <a href="#puzzles" class="btn btn-secondary btn-lg">
+            Browse Puzzles
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h8l-4 4z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="crossword-visual">
+          <div class="cw-cell cw-filled" style="grid-column:1;grid-row:1">C</div>
+          <div class="cw-cell cw-filled" style="grid-column:2;grid-row:1">R</div>
+          <div class="cw-cell cw-filled" style="grid-column:3;grid-row:1">O</div>
+          <div class="cw-cell cw-filled" style="grid-column:4;grid-row:1">S</div>
+          <div class="cw-cell cw-filled" style="grid-column:5;grid-row:1">S</div>
+          <div class="cw-cell cw-empty" style="grid-column:1;grid-row:2"></div>
+          <div class="cw-cell cw-filled cw-accent" style="grid-column:2;grid-row:2">O</div>
+          <div class="cw-cell cw-empty" style="grid-column:3;grid-row:2"></div>
+          <div class="cw-cell cw-empty" style="grid-column:4;grid-row:2"></div>
+          <div class="cw-cell cw-empty" style="grid-column:5;grid-row:2"></div>
+          <div class="cw-cell cw-empty" style="grid-column:1;grid-row:3"></div>
+          <div class="cw-cell cw-filled cw-accent" style="grid-column:2;grid-row:3">L</div>
+          <div class="cw-cell cw-filled" style="grid-column:3;grid-row:3">V</div>
+          <div class="cw-cell cw-filled" style="grid-column:4;grid-row:3">E</div>
+          <div class="cw-cell cw-filled" style="grid-column:5;grid-row:3">R</div>
+          <div class="cw-cell cw-empty" style="grid-column:1;grid-row:4"></div>
+          <div class="cw-cell cw-filled cw-accent" style="grid-column:2;grid-row:4">V</div>
+          <div class="cw-cell cw-empty" style="grid-column:3;grid-row:4"></div>
+          <div class="cw-cell cw-empty" style="grid-column:4;grid-row:4"></div>
+          <div class="cw-cell cw-empty" style="grid-column:5;grid-row:4"></div>
+          <div class="cw-cell cw-filled" style="grid-column:1;grid-row:5">S</div>
+          <div class="cw-cell cw-filled cw-accent" style="grid-column:2;grid-row:5">E</div>
+          <div class="cw-cell cw-filled" style="grid-column:3;grid-row:5">R</div>
+          <div class="cw-cell cw-filled" style="grid-column:4;grid-row:5">V</div>
+          <div class="cw-cell cw-filled" style="grid-column:5;grid-row:5">E</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-links" id="puzzles">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Today's Crossword Answers</h2>
+        <p class="section-desc">Select a puzzle to view today's complete answers</p>
+      </div>
+
+      <div class="source-grid">
+        {CROSSWORD_SOURCES.map((source) => (
+          <a href={source.path} class="source-card">
+            <div class="source-card-icon">{source.icon}</div>
+            <div class="source-card-content">
+              <h3 class="source-card-name">{source.name}</h3>
+              <p class="source-card-desc">{source.description}</p>
+            </div>
+            <div class="source-card-arrow">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="solver-cta">
+    <div class="container">
+      <div class="solver-cta-inner">
+        <div class="solver-cta-content">
+          <h2 class="solver-cta-title">Stuck on a Clue?</h2>
+          <p class="solver-cta-desc">
+            Our crossword solver searches millions of clues from multiple archives.
+            Enter any clue with an optional letter pattern to find the answer instantly.
+          </p>
+          <a href="/crossword-solver" class="btn btn-primary btn-lg">
+            Try the Solver
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </a>
+        </div>
+        <div class="solver-cta-visual">
+          <div class="solver-demo">
+            <div class="solver-demo-bar">
+              <span class="solver-demo-label">Clue</span>
+              <span class="solver-demo-input">"Cookie brand"</span>
+            </div>
+            <div class="solver-demo-bar">
+              <span class="solver-demo-label">Pattern</span>
+              <span class="solver-demo-input">O?E?</span>
+            </div>
+            <div class="solver-demo-result">
+              <span class="solver-demo-answer">OREO</span>
+              <span class="badge badge-success">Found</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  /* ===== Hero ===== */
+  .hero {
+    padding: 80px 0 60px;
+    overflow: hidden;
+  }
+
+  .hero > .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: var(--color-text);
+    margin-bottom: 20px;
+  }
+
+  .hero-highlight {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-down));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 32px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-lg {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+
+  /* ===== Crossword Visual ===== */
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .crossword-visual {
+    display: grid;
+    grid-template-columns: repeat(5, 72px);
+    grid-template-rows: repeat(5, 72px);
+    gap: 4px;
+    transform: perspective(800px) rotateY(-8deg) rotateX(4deg);
+    transition: transform 0.5s ease;
+  }
+
+  .crossword-visual:hover {
+    transform: perspective(800px) rotateY(0deg) rotateX(0deg);
+  }
+
+  .cw-cell {
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    transition: all 0.3s ease;
+  }
+
+  .cw-filled {
+    background: var(--color-bg-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .cw-filled:hover {
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-accent);
+    transform: scale(1.05);
+  }
+
+  .cw-accent {
+    color: var(--color-accent);
+    background: var(--color-accent-light);
+    border-color: var(--color-accent);
+  }
+
+  .cw-empty {
+    background: transparent;
+    border: 1px dashed var(--color-border);
+  }
+
+  /* ===== Source Grid ===== */
+  .quick-links {
+    padding: 60px 0;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .section-desc {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+  }
+
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .source-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+
+  .source-card:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg-card-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+  }
+
+  .source-card-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+  }
+
+  .source-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .source-card-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .source-card-desc {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .source-card-arrow {
+    color: var(--color-text-muted);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .source-card:hover .source-card-arrow {
+    color: var(--color-accent);
+    transform: translateX(4px);
+  }
+
+  /* ===== Solver CTA ===== */
+  .solver-cta {
+    padding: 60px 0;
+  }
+
+  .solver-cta-inner {
+    background: linear-gradient(135deg, var(--color-bg-card), var(--color-surface));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .solver-cta-inner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--color-accent-glow), transparent 70%);
+    pointer-events: none;
+  }
+
+  .solver-cta-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .solver-cta-desc {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .solver-cta-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .solver-cta-visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .solver-demo {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .solver-demo-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--color-bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+  }
+
+  .solver-demo-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-muted);
+    min-width: 60px;
+  }
+
+  .solver-demo-input {
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+
+  .solver-demo-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(0, 184, 148, 0.08);
+    border: 1px solid rgba(0, 184, 148, 0.2);
+    border-radius: var(--radius-sm);
+  }
+
+  .solver-demo-answer {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--color-success);
+    letter-spacing: 2px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .hero > .container {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero-desc {
+      max-width: 100%;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+
+    .hero-visual {
+      display: none;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .solver-cta-inner {
+      grid-template-columns: 1fr;
+      padding: 32px;
+    }
+
+    .source-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      padding: 48px 0 32px;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-desc {
+      font-size: 0.95rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+
+    .solver-cta-inner {
+      padding: 24px;
+    }
+
+    .solver-cta-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>

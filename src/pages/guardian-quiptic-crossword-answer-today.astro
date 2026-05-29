@@ -1,0 +1,61 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import PuzzleDisplay from '../components/PuzzleDisplay.astro';
+import { fetchLatestPuzzle, API_BASES, CROSSWORD_SOURCES } from '../lib/api';
+
+const source = CROSSWORD_SOURCES.find(s => s.slug === 'guardian-quiptic')!;
+let puzzleData = null;
+let puzzleDate = '';
+let error = '';
+
+try {
+  const data = await fetchLatestPuzzle(source.baseUrl);
+  if (data.success && data.data) {
+    puzzleData = data.data;
+    puzzleDate = data.date || '';
+  } else {
+    error = 'No puzzle found for today.';
+  }
+} catch (e: any) {
+  error = e.message || 'Failed to fetch puzzle data.';
+}
+---
+
+<MainLayout title="Guardian Quiptic Crossword Answers Today" description="Today's Guardian Quiptic Crossword crossword answers and solutions.">
+  <section class="page-section">
+    <div class="container">
+      <div class="page-breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Guardian Quiptic</span>
+      </div>
+      {puzzleData ? (
+        <PuzzleDisplay date={puzzleDate} title="Guardian Quiptic Crossword Answers Today" subtitle="An accessible entry point to cryptic crosswords from The Guardian" across={puzzleData.across || {}} down={puzzleData.down || {}} showAnswers={true} />
+      ) : (
+        <div class="error-state">
+          <h2 class="error-title">Unable to Load Puzzle</h2>
+          <p class="error-msg">{error}</p>
+          <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+      )}
+      <div class="page-content-section">
+        <h2 class="content-heading">About the Guardian Quiptic</h2>
+        <p class="content-text">An accessible entry point to cryptic crosswords from The Guardian. Our page provides the complete answers for today's Guardian Quiptic crossword. Whether you need help with a tricky clue or want to verify your completed puzzle, we have accurate and up-to-date solutions ready for you.</p>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .page-section { padding: 32px 0 48px; }
+  .page-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 0.85rem; color: var(--color-text-muted); }
+  .page-breadcrumb a { color: var(--color-text-muted); }
+  .page-breadcrumb a:hover { color: var(--color-accent); }
+  .breadcrumb-sep { color: var(--color-border-light); }
+  .error-state { text-align: center; padding: 64px 24px; max-width: 500px; margin: 0 auto; }
+  .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+  .error-msg { color: var(--color-text-muted); margin-bottom: 24px; line-height: 1.6; }
+  .page-content-section { margin-top: 48px; max-width: 800px; margin-left: auto; margin-right: auto; }
+  .content-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .content-text { color: var(--color-text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 16px; }
+</style>

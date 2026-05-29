@@ -1,0 +1,31 @@
+{
+  "name": "crossword-solver-frontend",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Professional crossword answers and solver website built with Astro 6 + Svelte",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.6.0",
+    "@astrojs/svelte": "^8.1.2",
+    "astro": "^6.4.2",
+    "svelte": "^5.56.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  },
+  "keywords": [
+    "crossword",
+    "solver",
+    "nyt",
+    "guardian",
+    "answers"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,83 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import CrosswordSolver from '../components/CrosswordSolver.svelte';
+---
+
+<MainLayout title="Crossword Solver" description="Free crossword solver tool. Enter any clue with an optional letter pattern to find answers instantly.">
+  <section class="page-section">
+    <div class="container">
+      <div class="page-breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Crossword Solver</span>
+      </div>
+
+      <CrosswordSolver client:load />
+
+      <div class="page-content-section">
+        <h2 class="content-heading">How Our Crossword Solver Works</h2>
+        <p class="content-text">
+          Our crossword solver searches through millions of clues from multiple archives and databases to find the best matching answers. When you enter a clue, we first check our internal archive of NYT Crossword and NYT Mini Crossword solutions for exact matches. If we find answers there, we return them immediately with historical data showing how many times that clue-answer pair has appeared.
+        </p>
+        <p class="content-text">
+          If no internal matches are found, we fall back to CrosswordNexus, a comprehensive online crossword database, and then to Datamuse, a linguistic search engine. This three-tier approach ensures you get the most accurate and comprehensive results possible. You can also use the pattern field to narrow down answers by specifying known letters and using question marks for unknown letters.
+        </p>
+
+        <h2 class="content-heading">Pattern Matching Guide</h2>
+        <p class="content-text">
+          The pattern field allows you to specify the structure of the answer you are looking for. Use uppercase letters for known positions and question marks (?) for unknown letters. For example, if you know the answer is five letters long and starts with "C" and ends with "R", you would enter "C??R" as the pattern. This dramatically narrows down the results and helps you find the exact answer more quickly.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .page-section {
+    padding: 0 0 48px;
+  }
+
+  .page-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding-top: 16px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .page-breadcrumb a {
+    color: var(--color-text-muted);
+    transition: color 0.2s;
+  }
+
+  .page-breadcrumb a:hover {
+    color: var(--color-accent);
+  }
+
+  .breadcrumb-sep {
+    color: var(--color-border-light);
+  }
+
+  .page-content-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .content-heading {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--color-text);
+  }
+
+  .content-text {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+</style>
