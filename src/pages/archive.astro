@@ -165,7 +165,7 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
 
     function repairMojibake(value) {
       const text = String(value || '');
-      if (!/[ÃƒÃ‚Ã¢]/.test(text)) {
+      if (!/[ÃƒÆ’Ãƒâ€šÃƒÂ¢]/.test(text)) {
         return text;
       }
 
@@ -186,6 +186,36 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       );
     }
 
+    function normalizeByline(author, editor) {
+      let cleanAuthor = decodeDisplayText(author).replace(/^by\s+/i, '').trim();
+      let cleanEditor = decodeDisplayText(editor)
+        .replace(/^(?:edited by|editors?\s*:|ed\.?\s*)/i, '')
+        .trim();
+
+      if (!cleanEditor && cleanAuthor) {
+        const combinedPatterns = [
+          /^(.*?)\s*[;|/]\s*(?:edited by|ed\.?)\s*(.+)$/i,
+          /^(.*?)\s*[·•-]\s*edited by\s+(.+)$/i,
+        ];
+
+        for (const pattern of combinedPatterns) {
+          const match = cleanAuthor.match(pattern);
+          if (match) {
+            cleanAuthor = decodeDisplayText(match[1]).replace(/^by\s+/i, '').trim();
+            cleanEditor = decodeDisplayText(match[2])
+              .replace(/^(?:edited by|editors?\s*:|ed\.?\s*)/i, '')
+              .trim();
+            break;
+          }
+        }
+      }
+
+      return {
+        author: cleanAuthor,
+        editor: cleanEditor,
+      };
+    }
+
     function formatDate(value) {
       try {
         return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', {
@@ -202,27 +232,35 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
     function normalizeStandard(payload) {
       const data = payload?.data || {};
       const puzzle = data.puzzle || {};
+      const byline = normalizeByline(puzzle.author || '', puzzle.editor || '');
+      const across = (data.across || []).map((clue) => ({
+        number: clue.number,
+        clue: decodeDisplayText(clue.clue_text),
+        answer: decodeDisplayText(clue.answer),
+      }));
+      const down = (data.down || []).map((clue) => ({
+        number: clue.number,
+        clue: decodeDisplayText(clue.clue_text),
+        answer: decodeDisplayText(clue.answer),
+      }));
+
       return {
         date: puzzle.date,
         formattedDate: decodeDisplayText(puzzle.formatted_date || formatDate(puzzle.date)),
         title: decodeDisplayText(puzzle.title || 'Crossword Answers'),
-        author: decodeDisplayText(puzzle.author || ''),
-        editor: decodeDisplayText(puzzle.editor || ''),
-        across: (data.across || []).map((clue) => ({
-          number: clue.number,
-          clue: decodeDisplayText(clue.clue_text),
-          answer: decodeDisplayText(clue.answer),
-        })),
-        down: (data.down || []).map((clue) => ({
-          number: clue.number,
-          clue: decodeDisplayText(clue.clue_text),
-          answer: decodeDisplayText(clue.answer),
-        })),
+        author: byline.author,
+        editor: byline.editor,
+        acrossCount: Number(puzzle.across_count ?? across.length),
+        downCount: Number(puzzle.down_count ?? down.length),
+        totalClues: Number(puzzle.total_clues ?? (across.length + down.length)),
+        across,
+        down,
       };
     }
 
     function normalizeMini(payload) {
       const data = payload?.data || {};
+      const meta = payload?.meta || {};
       const toClues = (entries) => Object.entries(entries || {})
         .map(([number, clue]) => ({
           number: Number.parseInt(number, 10),
@@ -230,15 +268,21 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
           answer: decodeDisplayText(clue.answer),
         }))
         .sort((left, right) => left.number - right.number);
+      const across = toClues(data.across);
+      const down = toClues(data.down);
+      const byline = normalizeByline(meta.author || '', meta.editor || '');
 
       return {
         date: payload?.date,
-        formattedDate: formatDate(payload?.date),
-        title: 'NYT Mini Crossword',
-        author: '',
-        editor: '',
-        across: toClues(data.across),
-        down: toClues(data.down),
+        formattedDate: decodeDisplayText(meta.formatted_date || formatDate(payload?.date)),
+        title: decodeDisplayText(meta.title || 'NYT Mini Crossword'),
+        author: byline.author,
+        editor: byline.editor,
+        acrossCount: Number(meta.across_count ?? across.length),
+        downCount: Number(meta.down_count ?? down.length),
+        totalClues: Number(meta.total_clues ?? (across.length + down.length)),
+        across,
+        down,
       };
     }
 
@@ -271,12 +315,12 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       `;
     }
 
-    function renderClues(clues, direction) {
+    function renderClues(clues, directionLabel, count) {
       return `
         <section class="archive-clue-column">
           <div class="archive-clue-head">
-            <span>${escapeHtml(direction)}</span>
-            <span>${clues.length}</span>
+            <span>${escapeHtml(directionLabel)}</span>
+            <span>${escapeHtml(count)}</span>
           </div>
           <div class="archive-clue-list">
             ${clues.map((clue) => `
@@ -294,7 +338,10 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
     }
 
     function renderPuzzle(source, puzzle) {
-      const total = puzzle.across.length + puzzle.down.length;
+      const total = puzzle.totalClues || (puzzle.across.length + puzzle.down.length);
+      const acrossCount = puzzle.acrossCount || puzzle.across.length;
+      const downCount = puzzle.downCount || puzzle.down.length;
+
       resultEl.innerHTML = `
         <article class="archive-puzzle-card" style="--source-color:${escapeHtml(source.color)}">
           <div class="archive-puzzle-banner">
@@ -305,21 +352,21 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
               ${(puzzle.author || puzzle.editor) ? `
                 <p class="archive-byline">
                   ${puzzle.author ? `By ${escapeHtml(puzzle.author)}` : ''}
-                  ${puzzle.editor ? ` · Edited by ${escapeHtml(puzzle.editor)}` : ''}
+                  ${puzzle.editor ? `${puzzle.author ? ' - ' : ''}Edited by ${escapeHtml(puzzle.editor)}` : ''}
                 </p>
               ` : ''}
             </div>
 
             <div class="archive-meta-grid">
               ${buildMetaChip('Total clues', total)}
-              ${buildMetaChip('Across', puzzle.across.length)}
-              ${buildMetaChip('Down', puzzle.down.length)}
+              ${buildMetaChip('Across', acrossCount)}
+              ${buildMetaChip('Down', downCount)}
             </div>
           </div>
 
           <div class="archive-clue-grid">
-            ${renderClues(puzzle.across, 'Across')}
-            ${renderClues(puzzle.down, 'Down')}
+            ${renderClues(puzzle.across, 'Across', acrossCount)}
+            ${renderClues(puzzle.down, 'Down', downCount)}
           </div>
 
           <div class="archive-actions">
@@ -358,7 +405,7 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
   </script>
 </MainLayout>
 
-<style>
+<style is:global>
   .archive-page {
     padding: 24px 0 56px;
     background:
@@ -768,6 +815,12 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
 
     .archive-clue-row-top {
       align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .archive-answer-pill {
+      align-self: stretch;
+      justify-content: space-between;
     }
   }
 </style>

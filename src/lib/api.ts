@@ -173,6 +173,9 @@ export interface StandardPuzzleResponse {
       editor: string;
       day_of_week: string;
       created_at: string;
+      across_count?: number;
+      down_count?: number;
+      total_clues?: number;
     };
     clues: StandardClue[];
     across: StandardClue[];
@@ -194,6 +197,16 @@ export interface MiniPuzzleResponse {
   success: boolean;
   date: string;
   formatted?: string;
+  meta?: {
+    title?: string;
+    author?: string;
+    editor?: string;
+    formatted_date?: string;
+    day_of_week?: string;
+    across_count?: number;
+    down_count?: number;
+    total_clues?: number;
+  };
   data: {
     across: Record<string, { clue: string; answer: string }>;
     down: Record<string, { clue: string; answer: string }>;
@@ -244,6 +257,9 @@ export interface NormalizedPuzzle {
   author: string;
   editor: string;
   dayOfWeek: string;
+  acrossCount: number;
+  downCount: number;
+  totalClues: number;
   across: { number: number; clue: string; answer: string }[];
   down: { number: number; clue: string; answer: string }[];
 }
@@ -314,6 +330,36 @@ export function decodeDisplayText(value: string | number | null | undefined): st
   );
 }
 
+function normalizeByline(author: string | null | undefined, editor: string | null | undefined) {
+  let cleanAuthor = decodeDisplayText(author).replace(/^by\s+/i, '').trim();
+  let cleanEditor = decodeDisplayText(editor)
+    .replace(/^(?:edited by|editors?\s*:|ed\.?\s*)/i, '')
+    .trim();
+
+  if (!cleanEditor && cleanAuthor) {
+    const combinedPatterns = [
+      /^(.*?)\s*[;|/]\s*(?:edited by|ed\.?)\s*(.+)$/i,
+      /^(.*?)\s*[·•-]\s*edited by\s+(.+)$/i,
+    ];
+
+    for (const pattern of combinedPatterns) {
+      const match = cleanAuthor.match(pattern);
+      if (match) {
+        cleanAuthor = decodeDisplayText(match[1]).replace(/^by\s+/i, '').trim();
+        cleanEditor = decodeDisplayText(match[2])
+          .replace(/^(?:edited by|editors?\s*:|ed\.?\s*)/i, '')
+          .trim();
+        break;
+      }
+    }
+  }
+
+  return {
+    author: cleanAuthor,
+    editor: cleanEditor,
+  };
+}
+
 export async function fetchLatestPuzzle(baseUrl: string): Promise<NormalizedPuzzle | null> {
   const res = await fetch(`${baseUrl}/api/puzzle/latest`);
   if (!res.ok) return null;
@@ -362,49 +408,63 @@ export async function solveClue(clue: string, pattern?: string): Promise<SolveRe
 
 function normalizeStandardResponse(json: StandardPuzzleResponse): NormalizedPuzzle {
   const p = json.data.puzzle;
+  const byline = normalizeByline(p.author, p.editor);
+  const across = (json.data.across || []).map((c) => ({
+    number: c.number,
+    clue: decodeDisplayText(c.clue_text),
+    answer: decodeDisplayText(c.answer),
+  }));
+  const down = (json.data.down || []).map((c) => ({
+    number: c.number,
+    clue: decodeDisplayText(c.clue_text),
+    answer: decodeDisplayText(c.answer),
+  }));
+
   return {
     date: p.date,
     formattedDate: decodeDisplayText(p.formatted_date || formatDateDisplay(p.date)),
     title: decodeDisplayText(p.title || ''),
-    author: decodeDisplayText(p.author || ''),
-    editor: decodeDisplayText(p.editor || ''),
+    author: byline.author,
+    editor: byline.editor,
     dayOfWeek: decodeDisplayText(p.day_of_week || getDayOfWeek(p.date)),
-    across: (json.data.across || []).map((c) => ({
-      number: c.number,
-      clue: decodeDisplayText(c.clue_text),
-      answer: decodeDisplayText(c.answer),
-    })),
-    down: (json.data.down || []).map((c) => ({
-      number: c.number,
-      clue: decodeDisplayText(c.clue_text),
-      answer: decodeDisplayText(c.answer),
-    })),
+    acrossCount: p.across_count ?? across.length,
+    downCount: p.down_count ?? down.length,
+    totalClues: p.total_clues ?? across.length + down.length,
+    across,
+    down,
   };
 }
 
 function normalizeMiniResponse(json: MiniPuzzleResponse): NormalizedPuzzle {
   const date = json.date || '';
+  const across = Object.entries(json.data.across || {})
+    .map(([num, val]) => ({
+      number: parseInt(num),
+      clue: decodeDisplayText(val.clue),
+      answer: decodeDisplayText(val.answer),
+    }))
+    .sort((a, b) => a.number - b.number);
+  const down = Object.entries(json.data.down || {})
+    .map(([num, val]) => ({
+      number: parseInt(num),
+      clue: decodeDisplayText(val.clue),
+      answer: decodeDisplayText(val.answer),
+    }))
+    .sort((a, b) => a.number - b.number);
+  const byline = normalizeByline(json.meta?.author, json.meta?.editor);
+
   return {
     date,
-    formattedDate: formatDateDisplay(date),
-    title: 'NYT Mini Crossword',
-    author: '',
-    editor: '',
-    dayOfWeek: getDayOfWeek(date),
-    across: Object.entries(json.data.across || {})
-      .map(([num, val]) => ({
-        number: parseInt(num),
-        clue: decodeDisplayText(val.clue),
-        answer: decodeDisplayText(val.answer),
-      }))
-      .sort((a, b) => a.number - b.number),
-    down: Object.entries(json.data.down || {})
-      .map(([num, val]) => ({
-        number: parseInt(num),
-        clue: decodeDisplayText(val.clue),
-        answer: decodeDisplayText(val.answer),
-      }))
-      .sort((a, b) => a.number - b.number),
+    formattedDate: decodeDisplayText(json.meta?.formatted_date || formatDateDisplay(date)),
+    title: decodeDisplayText(json.meta?.title || 'NYT Mini Crossword'),
+    author: byline.author,
+    editor: byline.editor,
+    dayOfWeek: decodeDisplayText(json.meta?.day_of_week || getDayOfWeek(date)),
+    acrossCount: json.meta?.across_count ?? across.length,
+    downCount: json.meta?.down_count ?? down.length,
+    totalClues: json.meta?.total_clues ?? across.length + down.length,
+    across,
+    down,
   };
 }
 
