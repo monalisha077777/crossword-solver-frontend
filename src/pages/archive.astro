@@ -15,7 +15,7 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
 
 <MainLayout
   title="Crossword Archive"
-  description="Browse crossword answers by date from NYT, Guardian, LA Times, Atlantic, USA Today, Washington Post, and more on one clean archive page."
+  description="Browse crossword answers by date from NYT, Guardian, LA Times, Atlantic, USA Today, and Washington Post on one clean archive page."
   canonicalUrl="https://crosswordsolver.dev/archive"
   schema={{
     '@context': 'https://schema.org',
@@ -34,18 +34,36 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       </nav>
 
       <div class="archive-hero">
-        <span class="archive-kicker">One clean archive URL</span>
-        <h1>Crossword Archive</h1>
-        <p>
-          Pick a puzzle source and date to load archived answers. This page does not create
-          crawlable date URLs, so bots cannot walk endless previous and next day pages.
-        </p>
+        <div class="archive-hero-copy">
+          <span class="archive-kicker">Single archive entry point</span>
+          <h1>Crossword Archive</h1>
+          <p>
+            Load any saved puzzle on demand without generating endless indexed date pages. Pick
+            the source, choose a date, and we will open the stored across and down answers in one
+            polished view.
+          </p>
+        </div>
+
+        <div class="archive-hero-panel">
+          <div class="hero-stat">
+            <strong>13</strong>
+            <span>sources connected</span>
+          </div>
+          <div class="hero-stat">
+            <strong>0</strong>
+            <span>crawlable date URLs</span>
+          </div>
+          <div class="hero-stat">
+            <strong>1</strong>
+            <span>clean archive page</span>
+          </div>
+        </div>
       </div>
 
       <div class="archive-shell">
         <form class="archive-form" id="archiveForm">
-          <div class="field-group">
-            <label for="sourceSelect">Puzzle</label>
+          <div class="field-group field-group-wide">
+            <label for="sourceSelect">Puzzle source</label>
             <select id="sourceSelect" name="source">
               {archiveSources.map((source) => (
                 <option value={source.slug}>{source.name}</option>
@@ -54,21 +72,21 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
           </div>
 
           <div class="field-group">
-            <label for="archiveDate">Date</label>
+            <label for="archiveDate">Archive date</label>
             <input id="archiveDate" type="date" name="date" value={today} max={today} />
           </div>
 
-          <button class="btn btn-primary archive-submit" type="submit">Load Answers</button>
+          <button class="btn btn-primary archive-submit" type="submit">Load Archive</button>
         </form>
 
         <div class="archive-note">
-          <strong>Traffic-safe by design:</strong> archive lookups happen only after a user action,
-          and the selected date is never written into the public URL.
+          Archive lookups only run after a real user action, and the selected date never becomes a
+          public indexed URL.
         </div>
       </div>
 
       <div id="archiveStatus" class="archive-status" role="status" aria-live="polite">
-        Choose a puzzle and date, then load the answers.
+        Choose a puzzle and date, then load the saved answers.
       </div>
 
       <div id="archiveResult" class="archive-result" hidden></div>
@@ -94,6 +112,80 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
         .replace(/'/g, '&#39;');
     }
 
+    function decodeHtmlEntities(value) {
+      return String(value || '').replace(/&[a-zA-Z#0-9]+;/g, (entity) => {
+        const named = {
+          '&quot;': '"',
+          '&amp;': '&',
+          '&#39;': "'",
+          '&lt;': '<',
+          '&gt;': '>',
+          '&nbsp;': ' ',
+          '&mdash;': '-',
+          '&ndash;': '-',
+          '&rsquo;': "'",
+          '&lsquo;': "'",
+          '&rdquo;': '"',
+          '&ldquo;': '"',
+          '&apos;': "'",
+        };
+
+        if (named[entity]) {
+          return named[entity];
+        }
+
+        const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/);
+        if (hexMatch) {
+          return String.fromCodePoint(parseInt(hexMatch[1], 16));
+        }
+
+        const decMatch = entity.match(/^&#(\d+);$/);
+        if (decMatch) {
+          return String.fromCodePoint(parseInt(decMatch[1], 10));
+        }
+
+        return entity;
+      });
+    }
+
+    function decodePercentEscapes(value) {
+      const text = String(value || '');
+      if (!/%[0-9A-Fa-f]{2}/.test(text)) {
+        return text;
+      }
+
+      try {
+        return decodeURIComponent(text);
+      } catch {
+        return text.replace(/%([0-9A-Fa-f]{2})/g, (_, hex) =>
+          String.fromCharCode(parseInt(hex, 16))
+        );
+      }
+    }
+
+    function repairMojibake(value) {
+      const text = String(value || '');
+      if (!/[ÃƒÃ‚Ã¢]/.test(text)) {
+        return text;
+      }
+
+      try {
+        const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0) & 0xff);
+        return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      } catch {
+        return text;
+      }
+    }
+
+    function decodeDisplayText(value) {
+      return repairMojibake(
+        decodePercentEscapes(decodeHtmlEntities(String(value || '')))
+          .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+      );
+    }
+
     function formatDate(value) {
       try {
         return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', {
@@ -112,19 +204,19 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       const puzzle = data.puzzle || {};
       return {
         date: puzzle.date,
-        formattedDate: puzzle.formatted_date || formatDate(puzzle.date),
-        title: puzzle.title || 'Crossword Answers',
-        author: puzzle.author || '',
-        editor: puzzle.editor || '',
+        formattedDate: decodeDisplayText(puzzle.formatted_date || formatDate(puzzle.date)),
+        title: decodeDisplayText(puzzle.title || 'Crossword Answers'),
+        author: decodeDisplayText(puzzle.author || ''),
+        editor: decodeDisplayText(puzzle.editor || ''),
         across: (data.across || []).map((clue) => ({
           number: clue.number,
-          clue: clue.clue_text,
-          answer: clue.answer,
+          clue: decodeDisplayText(clue.clue_text),
+          answer: decodeDisplayText(clue.answer),
         })),
         down: (data.down || []).map((clue) => ({
           number: clue.number,
-          clue: clue.clue_text,
-          answer: clue.answer,
+          clue: decodeDisplayText(clue.clue_text),
+          answer: decodeDisplayText(clue.answer),
         })),
       };
     }
@@ -134,8 +226,8 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       const toClues = (entries) => Object.entries(entries || {})
         .map(([number, clue]) => ({
           number: Number.parseInt(number, 10),
-          clue: clue.clue,
-          answer: clue.answer,
+          clue: decodeDisplayText(clue.clue),
+          answer: decodeDisplayText(clue.answer),
         }))
         .sort((left, right) => left.number - right.number);
 
@@ -170,20 +262,31 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       return source.slug === 'nyt-mini' ? normalizeMini(payload) : normalizeStandard(payload);
     }
 
-    function renderClues(title, clues, direction) {
+    function buildMetaChip(label, value) {
+      return `
+        <div class="archive-meta-chip">
+          <span class="archive-meta-label">${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `;
+    }
+
+    function renderClues(clues, direction) {
       return `
         <section class="archive-clue-column">
           <div class="archive-clue-head">
-            <span>${direction}</span>
+            <span>${escapeHtml(direction)}</span>
             <span>${clues.length}</span>
           </div>
           <div class="archive-clue-list">
             ${clues.map((clue) => `
-              <div class="archive-clue-row">
-                <span class="archive-clue-num">${escapeHtml(clue.number)}</span>
-                <span class="archive-clue-text">${escapeHtml(clue.clue)}</span>
-                <strong class="archive-clue-answer">${escapeHtml(clue.answer)}</strong>
-              </div>
+              <article class="archive-clue-row">
+                <div class="archive-clue-row-top">
+                  <span class="archive-clue-num">${escapeHtml(clue.number)}</span>
+                  <span class="archive-answer-pill">${escapeHtml(clue.answer)} <small>${escapeHtml(clue.answer.length)} letters</small></span>
+                </div>
+                <p class="archive-clue-text">${escapeHtml(clue.clue)}</p>
+              </article>
             `).join('')}
           </div>
         </section>
@@ -194,24 +297,34 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
       const total = puzzle.across.length + puzzle.down.length;
       resultEl.innerHTML = `
         <article class="archive-puzzle-card" style="--source-color:${escapeHtml(source.color)}">
-          <div class="archive-puzzle-header">
-            <div class="archive-source-pill">${escapeHtml(source.name)}</div>
-            <h2>${escapeHtml(puzzle.title)}</h2>
-            <p>${escapeHtml(puzzle.formattedDate)} - ${total} clues</p>
-            ${(puzzle.author || puzzle.editor) ? `
-              <p class="archive-byline">
-                ${puzzle.author ? `By ${escapeHtml(puzzle.author)}` : ''}
-                ${puzzle.editor ? ` - Ed. ${escapeHtml(puzzle.editor)}` : ''}
-              </p>
-            ` : ''}
+          <div class="archive-puzzle-banner">
+            <div class="archive-banner-copy">
+              <div class="archive-source-pill">${escapeHtml(source.name)}</div>
+              <h2>${escapeHtml(puzzle.title)}</h2>
+              <p class="archive-banner-date">${escapeHtml(puzzle.formattedDate)}</p>
+              ${(puzzle.author || puzzle.editor) ? `
+                <p class="archive-byline">
+                  ${puzzle.author ? `By ${escapeHtml(puzzle.author)}` : ''}
+                  ${puzzle.editor ? ` · Edited by ${escapeHtml(puzzle.editor)}` : ''}
+                </p>
+              ` : ''}
+            </div>
+
+            <div class="archive-meta-grid">
+              ${buildMetaChip('Total clues', total)}
+              ${buildMetaChip('Across', puzzle.across.length)}
+              ${buildMetaChip('Down', puzzle.down.length)}
+            </div>
           </div>
+
           <div class="archive-clue-grid">
-            ${renderClues(puzzle.title, puzzle.across, 'Across')}
-            ${renderClues(puzzle.title, puzzle.down, 'Down')}
+            ${renderClues(puzzle.across, 'Across')}
+            ${renderClues(puzzle.down, 'Down')}
           </div>
+
           <div class="archive-actions">
             <a class="btn btn-ghost" href="${escapeHtml(source.todayPath)}">Open Today Page</a>
-            <a class="btn btn-ghost" href="/crossword-solver">Use Solver</a>
+            <a class="btn btn-ghost" href="/crossword-solver">Open Solver</a>
           </div>
         </article>
       `;
@@ -248,6 +361,9 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
 <style>
   .archive-page {
     padding: 24px 0 56px;
+    background:
+      radial-gradient(circle at top left, rgba(20, 120, 255, 0.12), transparent 32%),
+      radial-gradient(circle at top right, rgba(255, 140, 46, 0.12), transparent 28%);
   }
 
   .breadcrumb {
@@ -272,47 +388,109 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
   }
 
   .archive-hero {
-    max-width: 760px;
-    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1.6fr minmax(240px, 340px);
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .archive-hero-copy,
+  .archive-hero-panel,
+  .archive-shell,
+  .archive-puzzle-card {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+  }
+
+  .archive-hero-copy {
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    padding: 32px;
+    background:
+      linear-gradient(145deg, rgba(14, 116, 144, 0.1), rgba(255, 255, 255, 0.98) 42%),
+      linear-gradient(180deg, #ffffff, #f8fbff);
+  }
+
+  .archive-hero-copy::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 178, 55, 0.22), rgba(255, 178, 55, 0));
   }
 
   .archive-kicker {
     display: inline-flex;
-    margin-bottom: 10px;
-    padding: 5px 12px;
-    border-radius: var(--radius-full);
-    background: var(--color-accent-light);
-    color: var(--color-accent);
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(26, 115, 232, 0.1);
+    color: #0f5bd3;
     font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
     text-transform: uppercase;
   }
 
   .archive-hero h1 {
-    font-size: 2.35rem;
-    line-height: 1.1;
-    letter-spacing: -1px;
     margin-bottom: 12px;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 0.98;
+    letter-spacing: -1.6px;
   }
 
   .archive-hero p {
+    max-width: 60ch;
     color: var(--color-text-secondary);
-    line-height: 1.75;
+    line-height: 1.8;
+    font-size: 0.98rem;
+  }
+
+  .archive-hero-panel {
+    display: grid;
+    gap: 12px;
+    border-radius: 30px;
+    padding: 22px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.98));
+    align-content: center;
+  }
+
+  .hero-stat {
+    display: grid;
+    gap: 3px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(26, 115, 232, 0.09);
+  }
+
+  .hero-stat strong {
+    font-size: 1.65rem;
+    line-height: 1;
+    color: #0f172a;
+  }
+
+  .hero-stat span {
+    color: var(--color-text-secondary);
+    font-size: 0.84rem;
   }
 
   .archive-shell {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: 28px;
     padding: 22px;
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 18px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.98));
+    margin-bottom: 14px;
   }
 
   .archive-form {
     display: grid;
-    grid-template-columns: 1.4fr 1fr auto;
+    grid-template-columns: minmax(0, 1.5fr) minmax(190px, 0.8fr) auto;
     gap: 14px;
     align-items: end;
   }
@@ -320,183 +498,276 @@ const archiveSources = CROSSWORD_SOURCES.map((source) => ({
   .field-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
   }
 
   .field-group label {
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
     color: var(--color-text-secondary);
   }
 
   .field-group select,
   .field-group input {
-    min-height: 43px;
-    padding: 10px 12px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg);
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid rgba(15, 23, 42, 0.11);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.92);
     color: var(--color-text);
-    font-size: 0.92rem;
+    font-size: 0.95rem;
   }
 
   .archive-submit {
-    min-height: 43px;
+    min-height: 48px;
+    border-radius: 16px;
+    white-space: nowrap;
   }
 
   .archive-note {
     margin-top: 14px;
     padding: 12px 14px;
-    border-radius: var(--radius-sm);
-    background: var(--color-success-light);
-    color: var(--color-success);
-    font-size: 0.84rem;
+    border-radius: 16px;
+    background: rgba(16, 185, 129, 0.08);
+    color: #0f766e;
+    font-size: 0.85rem;
     line-height: 1.6;
   }
 
   .archive-status {
-    margin: 18px 0;
+    margin: 16px 0 18px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
     color: var(--color-text-secondary);
     font-size: 0.92rem;
   }
 
   .archive-puzzle-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-top: 5px solid var(--source-color, var(--color-accent));
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border-radius: 32px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 251, 255, 0.98));
   }
 
-  .archive-puzzle-header {
-    margin-bottom: 22px;
+  .archive-puzzle-banner {
+    display: grid;
+    grid-template-columns: 1.5fr minmax(250px, 0.9fr);
+    gap: 18px;
+    padding: 28px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--source-color) 14%, white), rgba(255, 255, 255, 0.92) 50%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   }
 
   .archive-source-pill {
     display: inline-flex;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    background: var(--color-tag-bg);
-    color: var(--color-tag);
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--source-color);
     font-size: 0.76rem;
-    font-weight: 700;
-    margin-bottom: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
   }
 
-  .archive-puzzle-header h2 {
-    font-size: 1.55rem;
-    line-height: 1.25;
+  .archive-banner-copy h2 {
+    margin-bottom: 8px;
+    font-size: clamp(1.55rem, 2.6vw, 2.3rem);
+    line-height: 1.08;
+    letter-spacing: -1px;
+  }
+
+  .archive-banner-date {
     margin-bottom: 6px;
-  }
-
-  .archive-puzzle-header p {
-    color: var(--color-text-muted);
-    font-size: 0.86rem;
+    color: var(--color-text-secondary);
+    font-size: 0.98rem;
+    font-weight: 600;
   }
 
   .archive-byline {
-    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+  }
+
+  .archive-meta-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .archive-meta-chip {
+    display: grid;
+    gap: 4px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .archive-meta-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .archive-meta-chip strong {
+    font-size: 1.15rem;
+    color: #0f172a;
   }
 
   .archive-clue-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px;
+    gap: 22px;
+    padding: 24px 28px 28px;
+  }
+
+  .archive-clue-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .archive-clue-head {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-border);
-    color: var(--source-color, var(--color-accent));
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
+    border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+    color: var(--source-color);
+    font-size: 0.79rem;
+    font-weight: 900;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
   }
 
   .archive-clue-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 10px;
+    display: grid;
+    gap: 12px;
   }
 
   .archive-clue-row {
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    gap: 8px;
-    align-items: baseline;
-    padding: 9px 10px;
-    border-radius: var(--radius-sm);
+    padding: 15px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   }
 
   .archive-clue-row:hover {
-    background: var(--color-accent-light);
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--source-color) 28%, white);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
   }
 
-  .archive-clue-num,
-  .archive-clue-answer {
-    font-family: var(--font-mono);
+  .archive-clue-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
   }
 
   .archive-clue-num {
-    color: var(--source-color, var(--color-accent));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--source-color) 10%, white);
+    color: var(--source-color);
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
     font-weight: 800;
+  }
+
+  .archive-answer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.09);
+    color: #0f766e;
+    font-family: var(--font-mono);
     font-size: 0.84rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .archive-answer-pill small {
+    color: rgba(15, 118, 110, 0.75);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
   }
 
   .archive-clue-text {
-    font-size: 0.9rem;
     color: var(--color-text);
-  }
-
-  .archive-clue-answer {
-    color: var(--color-success);
-    font-size: 0.84rem;
-    letter-spacing: 1px;
-    text-align: right;
-    white-space: nowrap;
+    font-size: 0.95rem;
+    line-height: 1.65;
   }
 
   .archive-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-top: 24px;
-    padding-top: 18px;
-    border-top: 1px solid var(--color-border);
+    padding: 0 28px 28px;
   }
 
-  @media (max-width: 820px) {
-    .archive-form,
+  @media (max-width: 980px) {
+    .archive-hero,
+    .archive-puzzle-banner,
     .archive-clue-grid {
       grid-template-columns: 1fr;
     }
+  }
 
-    .archive-hero h1 {
-      font-size: 1.9rem;
+  @media (max-width: 760px) {
+    .archive-form {
+      grid-template-columns: 1fr;
+    }
+
+    .archive-hero-copy,
+    .archive-hero-panel,
+    .archive-shell,
+    .archive-puzzle-banner,
+    .archive-clue-grid,
+    .archive-actions {
+      padding-left: 18px;
+      padding-right: 18px;
     }
   }
 
   @media (max-width: 520px) {
+    .archive-page {
+      padding-top: 18px;
+    }
+
+    .archive-hero-copy,
+    .archive-hero-panel,
     .archive-shell,
     .archive-puzzle-card {
-      padding: 16px;
+      border-radius: 24px;
     }
 
-    .archive-clue-row {
-      grid-template-columns: 28px 1fr;
+    .archive-answer-pill {
+      white-space: normal;
+      justify-content: flex-end;
+      text-align: right;
     }
 
-    .archive-clue-answer {
-      grid-column: 2;
-      text-align: left;
+    .archive-clue-row-top {
+      align-items: flex-start;
     }
   }
 </style>

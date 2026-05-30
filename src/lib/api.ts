@@ -1,4 +1,3 @@
-// Backend API configuration
 export const API_BASES = {
   nytDaily: 'https://crossword-archive-worker.mitomat.workers.dev',
   nytMini: 'https://nyt-mini-archive.nytsolver.workers.dev',
@@ -36,7 +35,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'nyt',
     baseUrl: API_BASES.nytDaily,
     color: '#1a73e8',
-    description: 'The gold standard of American crosswords — challenging, clever, and iconic',
+    description: 'The gold standard of American crosswords: challenging, clever, and iconic.',
     todayPath: '/nyt-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -46,7 +45,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'nyt-mini',
     baseUrl: API_BASES.nytMini,
     color: '#e8710a',
-    description: 'A bite-sized 5x5 puzzle — perfect for a quick daily mental workout',
+    description: 'A bite-sized 5x5 puzzle for a quick daily mental workout.',
     todayPath: '/nyt-mini-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -56,7 +55,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'atlantic',
     baseUrl: API_BASES.atlantic,
     color: '#e53935',
-    description: 'Clever themes and smooth fill from The Atlantic\'s daily puzzle',
+    description: 'Clever themes and smooth fill from The Atlantic daily puzzle.',
     todayPath: '/atlantic-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -66,7 +65,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'guardian',
     baseUrl: API_BASES.guardianQuick,
     color: '#1a73e8',
-    description: 'Quick and accessible British-style crossword from The Guardian',
+    description: 'Quick and accessible British-style crossword from The Guardian.',
     todayPath: '/guardian-quick-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -76,7 +75,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'guardian',
     baseUrl: API_BASES.guardianCryptic,
     color: '#7b1fa2',
-    description: 'Brain-teasing cryptic clues from The Guardian\'s expert setters',
+    description: 'Brain-teasing cryptic clues from The Guardian expert setters.',
     todayPath: '/guardian-cryptic-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -86,7 +85,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'guardian',
     baseUrl: API_BASES.guardianPrize,
     color: '#c2185b',
-    description: 'Weekend prize crossword with challenging puzzles from The Guardian',
+    description: 'Weekend prize crossword with challenging puzzles from The Guardian.',
     todayPath: '/guardian-prize-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -96,7 +95,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'guardian',
     baseUrl: API_BASES.guardianQuiptic,
     color: '#00897b',
-    description: 'An accessible entry point to cryptic crosswords from The Guardian',
+    description: 'An accessible entry point to cryptic crosswords from The Guardian.',
     todayPath: '/guardian-quiptic-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -106,7 +105,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'guardian',
     baseUrl: API_BASES.guardianWeekend,
     color: '#f57c00',
-    description: 'The Guardian\'s weekend crossword supplement for leisurely solving',
+    description: 'The Guardian weekend crossword supplement for leisurely solving.',
     todayPath: '/guardian-weekend-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -116,7 +115,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'latimes',
     baseUrl: API_BASES.latimesDaily,
     color: '#00796b',
-    description: 'West coast flair meets classic cluing in the LA Times daily crossword',
+    description: 'West coast flair meets classic cluing in the LA Times daily crossword.',
     todayPath: '/la-times-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -126,7 +125,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'latimes',
     baseUrl: API_BASES.latimesMini,
     color: '#26a69a',
-    description: 'A compact mini crossword from the LA Times for a quick solve',
+    description: 'A compact mini crossword from the LA Times for a quick solve.',
     todayPath: '/la-times-mini-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -136,7 +135,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'usatoday',
     baseUrl: API_BASES.usaTodayDaily,
     color: '#1565c0',
-    description: 'Accessible daily crossword with pop culture flair from USA Today',
+    description: 'Accessible daily crossword with pop culture flair from USA Today.',
     todayPath: '/usa-today-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -146,7 +145,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'usatoday',
     baseUrl: API_BASES.usaTodayQuick,
     color: '#42a5f5',
-    description: 'A quick-hit mini crossword from USA Today for solvers on the go',
+    description: 'A quick-hit mini crossword from USA Today for solvers on the go.',
     todayPath: '/usa-today-quick-crossword-answer-today',
     archivePath: '/archive',
   },
@@ -156,13 +155,11 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     family: 'wapo',
     baseUrl: API_BASES.wapoDaily,
     color: '#2e7d32',
-    description: 'Political wit and wordplay in the Washington Post daily crossword',
+    description: 'Political wit and wordplay in the Washington Post daily crossword.',
     todayPath: '/washington-post-crossword-answer-today',
     archivePath: '/archive',
   },
 ];
-
-// --- Types for standard archive worker response ---
 
 export interface StandardPuzzleResponse {
   success: boolean;
@@ -193,8 +190,6 @@ export interface StandardClue {
   answer: string;
 }
 
-// --- Types for NYT Mini response ---
-
 export interface MiniPuzzleResponse {
   success: boolean;
   date: string;
@@ -213,8 +208,6 @@ export interface MiniClue {
   answer: string;
 }
 
-// --- Types for solver ---
-
 export interface SolveResult {
   success: boolean;
   clue: string;
@@ -223,12 +216,19 @@ export interface SolveResult {
   source: string;
   used_fallback: boolean;
   answers: SolveAnswer[];
-  history?: any;
+  historical_answers?: SolveAnswer[];
+  external_answers?: SolveAnswer[];
+  external_source?: string;
+  history?: {
+    daily?: Array<Record<string, unknown>>;
+    mini?: Array<Record<string, unknown>>;
+  };
   timestamp: string;
 }
 
 export interface SolveAnswer {
   word: string;
+  length?: number;
   score: number;
   frequency?: number;
   rating?: number;
@@ -236,8 +236,6 @@ export interface SolveAnswer {
   last_seen?: string;
   sample_clue?: string;
 }
-
-// --- Normalized puzzle type for display ---
 
 export interface NormalizedPuzzle {
   date: string;
@@ -250,9 +248,72 @@ export interface NormalizedPuzzle {
   down: { number: number; clue: string; answer: string }[];
 }
 
-// --- Fetch helpers ---
+function decodeHtmlEntities(text: string): string {
+  return text.replace(/&[a-zA-Z#0-9]+;/g, (entity) => {
+    const named: Record<string, string> = {
+      '&quot;': '"',
+      '&amp;': '&',
+      '&#39;': "'",
+      '&lt;': '<',
+      '&gt;': '>',
+      '&nbsp;': ' ',
+      '&mdash;': '-',
+      '&ndash;': '-',
+      '&rsquo;': "'",
+      '&lsquo;': "'",
+      '&rdquo;': '"',
+      '&ldquo;': '"',
+      '&apos;': "'",
+    };
 
-/** Fetch latest puzzle from a standard archive worker and normalize */
+    if (named[entity]) return named[entity];
+
+    const hexMatch = entity.match(/^&#x([0-9a-fA-F]+);$/);
+    if (hexMatch) return String.fromCodePoint(parseInt(hexMatch[1], 16));
+
+    const decMatch = entity.match(/^&#(\d+);$/);
+    if (decMatch) return String.fromCodePoint(parseInt(decMatch[1], 10));
+
+    return entity;
+  });
+}
+
+function decodePercentEscapes(text: string): string {
+  if (!/%[0-9A-Fa-f]{2}/.test(text)) {
+    return text;
+  }
+
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return text.replace(/%([0-9A-Fa-f]{2})/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16))
+    );
+  }
+}
+
+function repairMojibake(text: string): string {
+  if (!/[ÃƒÃ‚Ã¢]/.test(text)) {
+    return text;
+  }
+
+  try {
+    const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0) & 0xff);
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    return text;
+  }
+}
+
+export function decodeDisplayText(value: string | number | null | undefined): string {
+  return repairMojibake(
+    decodePercentEscapes(decodeHtmlEntities(String(value ?? '')))
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
+}
+
 export async function fetchLatestPuzzle(baseUrl: string): Promise<NormalizedPuzzle | null> {
   const res = await fetch(`${baseUrl}/api/puzzle/latest`);
   if (!res.ok) return null;
@@ -261,7 +322,6 @@ export async function fetchLatestPuzzle(baseUrl: string): Promise<NormalizedPuzz
   return normalizeStandardResponse(json);
 }
 
-/** Fetch puzzle by date from a standard archive worker */
 export async function fetchPuzzleByDate(baseUrl: string, date: string): Promise<NormalizedPuzzle | null> {
   const res = await fetch(`${baseUrl}/api/puzzle/${date}`);
   if (!res.ok) return null;
@@ -270,7 +330,6 @@ export async function fetchPuzzleByDate(baseUrl: string, date: string): Promise<
   return normalizeStandardResponse(json);
 }
 
-/** Fetch latest NYT Mini puzzle and normalize */
 export async function fetchLatestMiniPuzzle(): Promise<NormalizedPuzzle | null> {
   const res = await fetch(`${API_BASES.nytMini}/today`);
   if (!res.ok) return null;
@@ -279,7 +338,6 @@ export async function fetchLatestMiniPuzzle(): Promise<NormalizedPuzzle | null> 
   return normalizeMiniResponse(json);
 }
 
-/** Fetch NYT Mini by date */
 export async function fetchMiniPuzzleByDate(date: string): Promise<NormalizedPuzzle | null> {
   const res = await fetch(`${API_BASES.nytMini}/date?date=${date}`);
   if (!res.ok) return null;
@@ -288,14 +346,12 @@ export async function fetchMiniPuzzleByDate(date: string): Promise<NormalizedPuz
   return normalizeMiniResponse(json);
 }
 
-/** List NYT Mini puzzle dates */
 export async function listMiniPuzzles(page = 1, limit = 20) {
   const res = await fetch(`${API_BASES.nytMini}/list?page=${page}&limit=${limit}`);
   if (!res.ok) return null;
   return res.json();
 }
 
-/** Solve via central solver */
 export async function solveClue(clue: string, pattern?: string): Promise<SolveResult> {
   const params = new URLSearchParams({ clue });
   if (pattern) params.set('pattern', pattern);
@@ -304,26 +360,24 @@ export async function solveClue(clue: string, pattern?: string): Promise<SolveRe
   return res.json();
 }
 
-// --- Normalizers ---
-
 function normalizeStandardResponse(json: StandardPuzzleResponse): NormalizedPuzzle {
   const p = json.data.puzzle;
   return {
     date: p.date,
-    formattedDate: p.formatted_date || formatDateDisplay(p.date),
-    title: p.title || '',
-    author: p.author || '',
-    editor: p.editor || '',
-    dayOfWeek: p.day_of_week || getDayOfWeek(p.date),
-    across: (json.data.across || []).map(c => ({
+    formattedDate: decodeDisplayText(p.formatted_date || formatDateDisplay(p.date)),
+    title: decodeDisplayText(p.title || ''),
+    author: decodeDisplayText(p.author || ''),
+    editor: decodeDisplayText(p.editor || ''),
+    dayOfWeek: decodeDisplayText(p.day_of_week || getDayOfWeek(p.date)),
+    across: (json.data.across || []).map((c) => ({
       number: c.number,
-      clue: c.clue_text,
-      answer: c.answer,
+      clue: decodeDisplayText(c.clue_text),
+      answer: decodeDisplayText(c.answer),
     })),
-    down: (json.data.down || []).map(c => ({
+    down: (json.data.down || []).map((c) => ({
       number: c.number,
-      clue: c.clue_text,
-      answer: c.answer,
+      clue: decodeDisplayText(c.clue_text),
+      answer: decodeDisplayText(c.answer),
     })),
   };
 }
@@ -337,20 +391,23 @@ function normalizeMiniResponse(json: MiniPuzzleResponse): NormalizedPuzzle {
     author: '',
     editor: '',
     dayOfWeek: getDayOfWeek(date),
-    across: Object.entries(json.data.across || {}).map(([num, val]) => ({
-      number: parseInt(num),
-      clue: val.clue,
-      answer: val.answer,
-    })).sort((a, b) => a.number - b.number),
-    down: Object.entries(json.data.down || {}).map(([num, val]) => ({
-      number: parseInt(num),
-      clue: val.clue,
-      answer: val.answer,
-    })).sort((a, b) => a.number - b.number),
+    across: Object.entries(json.data.across || {})
+      .map(([num, val]) => ({
+        number: parseInt(num),
+        clue: decodeDisplayText(val.clue),
+        answer: decodeDisplayText(val.answer),
+      }))
+      .sort((a, b) => a.number - b.number),
+    down: Object.entries(json.data.down || {})
+      .map(([num, val]) => ({
+        number: parseInt(num),
+        clue: decodeDisplayText(val.clue),
+        answer: decodeDisplayText(val.answer),
+      }))
+      .sort((a, b) => a.number - b.number),
   };
 }
 
-/** Format a date for display */
 export function formatDateDisplay(dateStr: string): string {
   if (!dateStr || dateStr === 'undefined' || dateStr === 'null') return '';
   try {
@@ -367,7 +424,6 @@ export function formatDateDisplay(dateStr: string): string {
   }
 }
 
-/** Get day of week from date string */
 export function getDayOfWeek(dateStr: string): string {
   if (!dateStr) return '';
   try {
@@ -379,12 +435,10 @@ export function getDayOfWeek(dateStr: string): string {
   }
 }
 
-/** Get today's date as YYYY-MM-DD */
 export function getTodayStr(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-/** Format date as short version */
 export function formatDateShort(dateStr: string): string {
   if (!dateStr) return '';
   try {
@@ -396,7 +450,6 @@ export function formatDateShort(dateStr: string): string {
   }
 }
 
-/** Format date for URL (YYYY-MM-DD) */
 export function formatDateUrl(dateStr: string): string {
-  return dateStr; // already in YYYY-MM-DD format from API
+  return dateStr;
 }
