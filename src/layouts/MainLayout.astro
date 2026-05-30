@@ -9,6 +9,8 @@ interface Props {
   canonicalUrl?: string;
   ogType?: string;
   ogImage?: string;
+  robots?: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -17,10 +19,38 @@ const {
   canonicalUrl,
   ogType = 'website',
   ogImage = '/favicon.svg',
+  robots = 'index, follow',
+  schema = [],
 } = Astro.props;
 
 const siteName = 'CrosswordSolver';
+const siteUrl = 'https://crosswordsolver.dev';
 const fullTitle = `${title} | ${siteName}`;
+const canonical = canonicalUrl || `${siteUrl}${Astro.url.pathname}`;
+const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+const baseSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    description,
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/crossword-solver?clue={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: siteName,
+    url: siteUrl,
+    logo: `${siteUrl}/favicon.svg`
+  }
+];
+const extraSchema = Array.isArray(schema) ? schema : [schema];
+const schemaGraph = [...baseSchema, ...extraSchema.filter(Boolean)];
 ---
 
 <!doctype html>
@@ -30,7 +60,7 @@ const fullTitle = `${title} | ${siteName}`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#1a73e8" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={robots} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
@@ -38,15 +68,17 @@ const fullTitle = `${title} | ${siteName}`;
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={siteName} />
-    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Canonical -->
-    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    <link rel="canonical" href={canonical} />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,16 +89,8 @@ const fullTitle = `${title} | ${siteName}`;
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": siteName,
-      "description": description,
-      "url": canonicalUrl || "https://crosswordsolver.dev",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://crosswordsolver.dev/crossword-solver?clue={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      '@context': 'https://schema.org',
+      '@graph': schemaGraph
     })} />
   </head>
   <body>
@@ -76,7 +100,7 @@ const fullTitle = `${title} | ${siteName}`;
     </main>
     <Footer />
   </body>
-</template>
+</html>
 
 <style>
   .main-content {

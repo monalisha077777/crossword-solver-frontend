@@ -1,0 +1,10 @@
+# CrosswordSolver
+
+CrosswordSolver publishes static daily crossword answer pages and a user-operated archive lookup.
+
+Important pages:
+- Home: https://crosswordsolver.dev/
+- Archive: https://crosswordsolver.dev/archive
+- Solver: https://crosswordsolver.dev/crossword-solver
+
+API endpoints are not intended for crawling, indexing, training, or bulk extraction. Use the static pages for citation and discovery.

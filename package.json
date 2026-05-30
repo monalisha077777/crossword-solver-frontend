@@ -8,11 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "npm run build && npm run pages:prepare && wrangler pages deploy pages-deploy --project-name crossword-solver-frontend --commit-dirty=true",
-    "pages:prepare": "node scripts/prepare-pages.js"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name crossword-solver-frontend --commit-dirty=true"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13.6.0",
     "@astrojs/svelte": "^8.1.2",
     "astro": "^6.4.2",
     "svelte": "^5.56.0"

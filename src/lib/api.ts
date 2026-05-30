@@ -38,7 +38,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#1a73e8',
     description: 'The gold standard of American crosswords — challenging, clever, and iconic',
     todayPath: '/nyt-crossword-answer-today',
-    archivePath: '/nyt-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'nyt-mini',
@@ -48,7 +48,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#e8710a',
     description: 'A bite-sized 5x5 puzzle — perfect for a quick daily mental workout',
     todayPath: '/nyt-mini-crossword-answer-today',
-    archivePath: '/nyt-mini-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'atlantic',
@@ -58,7 +58,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#e53935',
     description: 'Clever themes and smooth fill from The Atlantic\'s daily puzzle',
     todayPath: '/atlantic-crossword-answer-today',
-    archivePath: '/atlantic-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'guardian-quick',
@@ -68,7 +68,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#1a73e8',
     description: 'Quick and accessible British-style crossword from The Guardian',
     todayPath: '/guardian-quick-crossword-answer-today',
-    archivePath: '/guardian-quick-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'guardian-cryptic',
@@ -78,7 +78,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#7b1fa2',
     description: 'Brain-teasing cryptic clues from The Guardian\'s expert setters',
     todayPath: '/guardian-cryptic-crossword-answer-today',
-    archivePath: '/guardian-cryptic-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'guardian-prize',
@@ -88,7 +88,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#c2185b',
     description: 'Weekend prize crossword with challenging puzzles from The Guardian',
     todayPath: '/guardian-prize-crossword-answer-today',
-    archivePath: '/guardian-prize-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'guardian-quiptic',
@@ -98,7 +98,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#00897b',
     description: 'An accessible entry point to cryptic crosswords from The Guardian',
     todayPath: '/guardian-quiptic-crossword-answer-today',
-    archivePath: '/guardian-quiptic-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'guardian-weekend',
@@ -108,7 +108,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#f57c00',
     description: 'The Guardian\'s weekend crossword supplement for leisurely solving',
     todayPath: '/guardian-weekend-crossword-answer-today',
-    archivePath: '/guardian-weekend-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'latimes-daily',
@@ -118,7 +118,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#00796b',
     description: 'West coast flair meets classic cluing in the LA Times daily crossword',
     todayPath: '/la-times-crossword-answer-today',
-    archivePath: '/la-times-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'latimes-mini',
@@ -128,7 +128,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#26a69a',
     description: 'A compact mini crossword from the LA Times for a quick solve',
     todayPath: '/la-times-mini-crossword-answer-today',
-    archivePath: '/la-times-mini-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'usa-today-daily',
@@ -138,7 +138,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#1565c0',
     description: 'Accessible daily crossword with pop culture flair from USA Today',
     todayPath: '/usa-today-crossword-answer-today',
-    archivePath: '/usa-today-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'usa-today-quick',
@@ -148,7 +148,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#42a5f5',
     description: 'A quick-hit mini crossword from USA Today for solvers on the go',
     todayPath: '/usa-today-quick-crossword-answer-today',
-    archivePath: '/usa-today-quick-crossword-archive',
+    archivePath: '/archive',
   },
   {
     slug: 'wapo-daily',
@@ -158,7 +158,7 @@ export const CROSSWORD_SOURCES: CrosswordSource[] = [
     color: '#2e7d32',
     description: 'Political wit and wordplay in the Washington Post daily crossword',
     todayPath: '/washington-post-crossword-answer-today',
-    archivePath: '/washington-post-crossword-archive',
+    archivePath: '/archive',
   },
 ];
 

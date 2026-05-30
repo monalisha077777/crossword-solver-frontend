@@ -1,0 +1,502 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { CROSSWORD_SOURCES, getTodayStr } from '../lib/api';
+
+const today = getTodayStr();
+const archiveSources = CROSSWORD_SOURCES.map((source) => ({
+  slug: source.slug,
+  name: source.name,
+  baseUrl: source.baseUrl,
+  color: source.color,
+  todayPath: source.todayPath,
+  family: source.family,
+}));
+---
+
+<MainLayout
+  title="Crossword Archive"
+  description="Browse crossword answers by date from NYT, Guardian, LA Times, Atlantic, USA Today, Washington Post, and more on one clean archive page."
+  canonicalUrl="https://crosswordsolver.dev/archive"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Crossword Archive',
+    description: 'A date-based archive for crossword answers from multiple puzzle publishers.',
+    url: 'https://crosswordsolver.dev/archive'
+  }}
+>
+  <section class="archive-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="bc-sep">/</span>
+        <span>Archive</span>
+      </nav>
+
+      <div class="archive-hero">
+        <span class="archive-kicker">One clean archive URL</span>
+        <h1>Crossword Archive</h1>
+        <p>
+          Pick a puzzle source and date to load archived answers. This page does not create
+          crawlable date URLs, so bots cannot walk endless previous and next day pages.
+        </p>
+      </div>
+
+      <div class="archive-shell">
+        <form class="archive-form" id="archiveForm">
+          <div class="field-group">
+            <label for="sourceSelect">Puzzle</label>
+            <select id="sourceSelect" name="source">
+              {archiveSources.map((source) => (
+                <option value={source.slug}>{source.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="archiveDate">Date</label>
+            <input id="archiveDate" type="date" name="date" value={today} max={today} />
+          </div>
+
+          <button class="btn btn-primary archive-submit" type="submit">Load Answers</button>
+        </form>
+
+        <div class="archive-note">
+          <strong>Traffic-safe by design:</strong> archive lookups happen only after a user action,
+          and the selected date is never written into the public URL.
+        </div>
+      </div>
+
+      <div id="archiveStatus" class="archive-status" role="status" aria-live="polite">
+        Choose a puzzle and date, then load the answers.
+      </div>
+
+      <div id="archiveResult" class="archive-result" hidden></div>
+    </div>
+  </section>
+
+  <script type="application/json" id="archive-source-data" set:html={JSON.stringify(archiveSources)} />
+
+  <script>
+    const sourceDataEl = document.getElementById('archive-source-data');
+    const sources = JSON.parse(sourceDataEl?.textContent || '[]');
+    const sourceMap = new Map(sources.map((source) => [source.slug, source]));
+    const form = document.getElementById('archiveForm');
+    const statusEl = document.getElementById('archiveStatus');
+    const resultEl = document.getElementById('archiveResult');
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(value) {
+      try {
+        return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      } catch {
+        return value;
+      }
+    }
+
+    function normalizeStandard(payload) {
+      const data = payload?.data || {};
+      const puzzle = data.puzzle || {};
+      return {
+        date: puzzle.date,
+        formattedDate: puzzle.formatted_date || formatDate(puzzle.date),
+        title: puzzle.title || 'Crossword Answers',
+        author: puzzle.author || '',
+        editor: puzzle.editor || '',
+        across: (data.across || []).map((clue) => ({
+          number: clue.number,
+          clue: clue.clue_text,
+          answer: clue.answer,
+        })),
+        down: (data.down || []).map((clue) => ({
+          number: clue.number,
+          clue: clue.clue_text,
+          answer: clue.answer,
+        })),
+      };
+    }
+
+    function normalizeMini(payload) {
+      const data = payload?.data || {};
+      const toClues = (entries) => Object.entries(entries || {})
+        .map(([number, clue]) => ({
+          number: Number.parseInt(number, 10),
+          clue: clue.clue,
+          answer: clue.answer,
+        }))
+        .sort((left, right) => left.number - right.number);
+
+      return {
+        date: payload?.date,
+        formattedDate: formatDate(payload?.date),
+        title: 'NYT Mini Crossword',
+        author: '',
+        editor: '',
+        across: toClues(data.across),
+        down: toClues(data.down),
+      };
+    }
+
+    async function fetchPuzzle(source, date) {
+      const endpoint = source.slug === 'nyt-mini'
+        ? `${source.baseUrl}/date?date=${encodeURIComponent(date)}`
+        : `${source.baseUrl}/api/puzzle/${encodeURIComponent(date)}`;
+      const response = await fetch(endpoint, {
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error(`No stored puzzle found for ${formatDate(date)}.`);
+      }
+
+      const payload = await response.json();
+      if (payload.success === false) {
+        throw new Error(payload.error || 'Puzzle lookup failed.');
+      }
+
+      return source.slug === 'nyt-mini' ? normalizeMini(payload) : normalizeStandard(payload);
+    }
+
+    function renderClues(title, clues, direction) {
+      return `
+        <section class="archive-clue-column">
+          <div class="archive-clue-head">
+            <span>${direction}</span>
+            <span>${clues.length}</span>
+          </div>
+          <div class="archive-clue-list">
+            ${clues.map((clue) => `
+              <div class="archive-clue-row">
+                <span class="archive-clue-num">${escapeHtml(clue.number)}</span>
+                <span class="archive-clue-text">${escapeHtml(clue.clue)}</span>
+                <strong class="archive-clue-answer">${escapeHtml(clue.answer)}</strong>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderPuzzle(source, puzzle) {
+      const total = puzzle.across.length + puzzle.down.length;
+      resultEl.innerHTML = `
+        <article class="archive-puzzle-card" style="--source-color:${escapeHtml(source.color)}">
+          <div class="archive-puzzle-header">
+            <div class="archive-source-pill">${escapeHtml(source.name)}</div>
+            <h2>${escapeHtml(puzzle.title)}</h2>
+            <p>${escapeHtml(puzzle.formattedDate)} - ${total} clues</p>
+            ${(puzzle.author || puzzle.editor) ? `
+              <p class="archive-byline">
+                ${puzzle.author ? `By ${escapeHtml(puzzle.author)}` : ''}
+                ${puzzle.editor ? ` - Ed. ${escapeHtml(puzzle.editor)}` : ''}
+              </p>
+            ` : ''}
+          </div>
+          <div class="archive-clue-grid">
+            ${renderClues(puzzle.title, puzzle.across, 'Across')}
+            ${renderClues(puzzle.title, puzzle.down, 'Down')}
+          </div>
+          <div class="archive-actions">
+            <a class="btn btn-ghost" href="${escapeHtml(source.todayPath)}">Open Today Page</a>
+            <a class="btn btn-ghost" href="/crossword-solver">Use Solver</a>
+          </div>
+        </article>
+      `;
+      resultEl.hidden = false;
+    }
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const source = sourceMap.get(String(data.get('source') || ''));
+      const date = String(data.get('date') || '');
+
+      resultEl.hidden = true;
+      resultEl.innerHTML = '';
+
+      if (!source || !date) {
+        statusEl.textContent = 'Please choose both a puzzle source and a date.';
+        return;
+      }
+
+      statusEl.textContent = `Loading ${source.name} for ${formatDate(date)}...`;
+
+      try {
+        const puzzle = await fetchPuzzle(source, date);
+        renderPuzzle(source, puzzle);
+        statusEl.textContent = `Loaded ${source.name} answers for ${formatDate(puzzle.date || date)}.`;
+      } catch (error) {
+        statusEl.textContent = error?.message || 'Unable to load this archive date.';
+      }
+    });
+  </script>
+</MainLayout>
+
+<style>
+  .archive-page {
+    padding: 24px 0 56px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-accent);
+  }
+
+  .bc-sep {
+    color: var(--color-border);
+  }
+
+  .archive-hero {
+    max-width: 760px;
+    margin-bottom: 28px;
+  }
+
+  .archive-kicker {
+    display: inline-flex;
+    margin-bottom: 10px;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .archive-hero h1 {
+    font-size: 2.35rem;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  .archive-hero p {
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+  }
+
+  .archive-shell {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 18px;
+  }
+
+  .archive-form {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .field-group select,
+  .field-group input {
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+
+  .archive-submit {
+    min-height: 43px;
+  }
+
+  .archive-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--color-success-light);
+    color: var(--color-success);
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+
+  .archive-status {
+    margin: 18px 0;
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+  }
+
+  .archive-puzzle-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-top: 5px solid var(--source-color, var(--color-accent));
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .archive-puzzle-header {
+    margin-bottom: 22px;
+  }
+
+  .archive-source-pill {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--color-tag-bg);
+    color: var(--color-tag);
+    font-size: 0.76rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .archive-puzzle-header h2 {
+    font-size: 1.55rem;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .archive-puzzle-header p {
+    color: var(--color-text-muted);
+    font-size: 0.86rem;
+  }
+
+  .archive-byline {
+    margin-top: 4px;
+  }
+
+  .archive-clue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  .archive-clue-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-border);
+    color: var(--source-color, var(--color-accent));
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .archive-clue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 10px;
+  }
+
+  .archive-clue-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 8px;
+    align-items: baseline;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .archive-clue-row:hover {
+    background: var(--color-accent-light);
+  }
+
+  .archive-clue-num,
+  .archive-clue-answer {
+    font-family: var(--font-mono);
+  }
+
+  .archive-clue-num {
+    color: var(--source-color, var(--color-accent));
+    font-weight: 800;
+    font-size: 0.84rem;
+  }
+
+  .archive-clue-text {
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .archive-clue-answer {
+    color: var(--color-success);
+    font-size: 0.84rem;
+    letter-spacing: 1px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .archive-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (max-width: 820px) {
+    .archive-form,
+    .archive-clue-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .archive-hero h1 {
+      font-size: 1.9rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .archive-shell,
+    .archive-puzzle-card {
+      padding: 16px;
+    }
+
+    .archive-clue-row {
+      grid-template-columns: 28px 1fr;
+    }
+
+    .archive-clue-answer {
+      grid-column: 2;
+      text-align: left;
+    }
+  }
+</style>
