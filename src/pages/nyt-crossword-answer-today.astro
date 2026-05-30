@@ -1,139 +1,129 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import PuzzleDisplay from '../components/PuzzleDisplay.astro';
-import SkeletonPuzzle from '../components/SkeletonPuzzle.astro';
-import { fetchLatestPuzzle, formatDateDisplay, API_BASES } from '../lib/api';
+import { fetchLatestPuzzle, CROSSWORD_SOURCES } from '../lib/api';
 
-let puzzleData = null;
-let puzzleDate = '';
+const source = CROSSWORD_SOURCES.find(s => s.slug === 'nyt-daily')!;
+let puzzle = null;
 let error = '';
 
 try {
-  const data = await fetchLatestPuzzle(API_BASES.nytDaily);
-  if (data.success && data.data) {
-    puzzleData = data.data;
-    puzzleDate = data.date || '';
-  } else {
-    error = 'No puzzle found for today.';
-  }
+  puzzle = await fetchLatestPuzzle(source.baseUrl);
+  if (!puzzle) error = 'No puzzle found for today. Check back later!';
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
 ---
 
-<MainLayout title="NYT Crossword Answers Today" description="Today's NYT Crossword answers and solutions. Get the complete solution for the New York Times daily crossword puzzle.">
+<MainLayout
+  title="NYT Crossword Answers Today"
+  description="Today's NYT Crossword answers and complete solutions. Get the full answer key for the New York Times daily crossword puzzle."
+>
   <section class="page-section">
     <div class="container">
-      <div class="page-breadcrumb">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a>
-        <span class="breadcrumb-sep">/</span>
+        <span class="bc-sep">/</span>
         <span>NYT Crossword</span>
-      </div>
+      </nav>
 
-      {puzzleData ? (
+      {puzzle ? (
         <PuzzleDisplay
-          date={puzzleDate}
-          title="NYT Crossword Answers Today"
-          subtitle="The New York Times Daily Crossword"
-          across={puzzleData.across || {}}
-          down={puzzleData.down || {}}
+          date={puzzle.date}
+          formattedDate={puzzle.formattedDate}
+          title={puzzle.title || 'NYT Crossword Answers Today'}
+          author={puzzle.author}
+          editor={puzzle.editor}
+          dayOfWeek={puzzle.dayOfWeek}
+          across={puzzle.across}
+          down={puzzle.down}
           showAnswers={true}
+          sourceColor={source.color}
+          archiveLink="/nyt-crossword-archive"
         />
       ) : (
         <div class="error-state">
           <div class="error-icon">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="22" stroke="#ff6b6b" stroke-width="2"/>
-              <path d="M24 16v12M24 32v2" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="22" stroke="#d93025" stroke-width="2"/>
+              <path d="M24 16v12M24 32v2" stroke="#d93025" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
           <h2 class="error-title">Unable to Load Puzzle</h2>
-          <p class="error-msg">{error || 'Something went wrong while fetching the puzzle data.'}</p>
+          <p class="error-msg">{error}</p>
           <a href="/" class="btn btn-secondary">Back to Home</a>
         </div>
       )}
 
-      <div class="page-content-section">
+      <div class="content-section">
         <h2 class="content-heading">About the NYT Crossword</h2>
         <p class="content-text">
-          The New York Times Crossword is the most prestigious daily crossword puzzle in the United States, published every day since 1942. Known for its clever wordplay, cultural references, and increasing difficulty throughout the week — Monday being the easiest and Saturday the hardest — it has become a daily ritual for millions of solvers. Sunday's puzzle is larger and themed, often considered a highlight of the week for crossword enthusiasts.
+          The New York Times Crossword is the most prestigious daily crossword puzzle in the United States, published every day since 1942. Known for its clever wordplay, cultural references, and increasing difficulty throughout the week — Monday being the easiest and Saturday the hardest — it has become a daily ritual for millions of solvers around the world. Sunday's puzzle is larger and themed, often considered a highlight of the week for crossword enthusiasts everywhere.
         </p>
         <p class="content-text">
-          Our page provides the complete answers for today's NYT Crossword as soon as they become available. Whether you are stuck on a single clue or want to verify your completed grid, we have you covered with accurate and up-to-date solutions. The answers are organized by Across and Down clues for easy navigation.
+          Our page provides the complete answers for today's NYT Crossword as soon as they become available. Whether you are stuck on a single clue or want to verify your completed grid, we have you covered with accurate and up-to-date solutions. The answers are organized by Across and Down clues for easy navigation, and you can toggle the visibility of answers to test yourself before revealing the solution.
         </p>
+        <div class="content-links">
+          <a href="/nyt-crossword-archive" class="btn btn-ghost">Browse NYT Crossword Archive</a>
+          <a href="/crossword-solver" class="btn btn-ghost">Open Crossword Solver</a>
+        </div>
       </div>
     </div>
   </section>
 </MainLayout>
 
 <style>
-  .page-section {
-    padding: 32px 0 48px;
-  }
+  .page-section { padding: 24px 0 48px; }
 
-  .page-breadcrumb {
+  .breadcrumb {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    font-size: 0.85rem;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 0.82rem;
     color: var(--color-text-muted);
   }
-
-  .page-breadcrumb a {
-    color: var(--color-text-muted);
-    transition: color 0.2s;
-  }
-
-  .page-breadcrumb a:hover {
-    color: var(--color-accent);
-  }
-
-  .breadcrumb-sep {
-    color: var(--color-border-light);
-  }
+  .breadcrumb a { color: var(--color-text-muted); }
+  .breadcrumb a:hover { color: var(--color-accent); }
+  .bc-sep { color: var(--color-border); }
 
   .error-state {
     text-align: center;
-    padding: 64px 24px;
-    max-width: 500px;
+    padding: 56px 24px;
+    max-width: 480px;
     margin: 0 auto;
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
   }
+  .error-icon { margin-bottom: 16px; }
+  .error-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+  .error-msg { color: var(--color-text-muted); margin-bottom: 20px; line-height: 1.6; font-size: 0.9rem; }
 
-  .error-icon {
-    margin-bottom: 20px;
-  }
-
-  .error-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .error-msg {
-    color: var(--color-text-muted);
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  .page-content-section {
-    margin-top: 48px;
-    max-width: 800px;
+  .content-section {
+    margin-top: 40px;
+    max-width: 760px;
     margin-left: auto;
     margin-right: auto;
   }
 
   .content-heading {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--color-text);
+    margin-bottom: 14px;
   }
 
   .content-text {
     color: var(--color-text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     line-height: 1.8;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
+  }
+
+  .content-links {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
   }
 </style>

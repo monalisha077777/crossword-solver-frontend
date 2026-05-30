@@ -1,86 +1,108 @@
 ---
+interface ClueEntry {
+  number: number;
+  clue: string;
+  answer: string;
+}
+
 interface Props {
   date: string;
+  formattedDate: string;
   title: string;
-  subtitle?: string;
-  across: Record<string, { clue: string; answer: string }>;
-  down: Record<string, { clue: string; answer: string }>;
+  author: string;
+  editor: string;
+  dayOfWeek: string;
+  across: ClueEntry[];
+  down: ClueEntry[];
   showAnswers?: boolean;
+  sourceColor?: string;
+  archiveLink?: string;
 }
 
-const { date, title, subtitle, across, down, showAnswers = true } = Astro.props;
+const {
+  date,
+  formattedDate,
+  title,
+  author,
+  editor,
+  dayOfWeek,
+  across,
+  down,
+  showAnswers = true,
+  sourceColor = '#1a73e8',
+  archiveLink,
+} = Astro.props;
 
-const acrossEntries = Object.entries(across || {}).sort(([a], [b]) => parseInt(a) - parseInt(b));
-const downEntries = Object.entries(down || {}).sort(([a], [b]) => parseInt(a) - parseInt(b));
-
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(`${dateStr}T00:00:00`).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return dateStr;
-  }
-}
+const totalClues = across.length + down.length;
 ---
 
-<div class="puzzle-display fade-in">
-  <div class="puzzle-header">
-    <div class="puzzle-meta">
-      <span class="badge badge-accent">{formatDate(date)}</span>
-      {subtitle && <span class="puzzle-subtitle">{subtitle}</span>}
+<div class="puzzle-card fade-in">
+  <!-- Header section with all metadata -->
+  <div class="puzzle-card-header">
+    <div class="puzzle-meta-row">
+      {dayOfWeek && <span class="badge badge-accent">{dayOfWeek}</span>}
+      {formattedDate && <span class="puzzle-date">{formattedDate}</span>}
     </div>
     <h1 class="puzzle-title">{title}</h1>
-    <div class="puzzle-stats">
-      <span class="stat">
-        <span class="stat-icon across-icon">→</span>
-        {acrossEntries.length} Across
-      </span>
-      <span class="stat">
-        <span class="stat-icon down-icon">↓</span>
-        {downEntries.length} Down
+    <div class="puzzle-meta-details">
+      {author && (
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
+          {author}
+        </span>
+      )}
+      {editor && (
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+          Ed. {editor}
+        </span>
+      )}
+      <span class="meta-item">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm1 2v1h8V2H4zm0 3v1h8V5H4zm0 3v1h4V8H4z"/></svg>
+        {totalClues} clues
       </span>
     </div>
   </div>
 
-  <div class="puzzle-actions-bar">
-    <button class="btn btn-secondary" id="toggleAnswersBtn" data-show={showAnswers ? 'true' : 'false'}>
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+  <!-- Action bar -->
+  <div class="puzzle-actions">
+    <button class="btn btn-secondary" id="toggleAnswersBtn" data-show={showAnswers ? '1' : '0'}>
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
         <path d="M8 3C4.5 3 1.7 5.1 0 8c1.7 2.9 4.5 5 8 5s6.3-2.1 8-5c-1.7-2.9-4.5-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
       </svg>
-      {showAnswers ? 'Hide Answers' : 'Show Answers'}
+      <span class="toggle-text">{showAnswers ? 'Hide Answers' : 'Show Answers'}</span>
     </button>
+    {archiveLink && <a href={archiveLink} class="btn btn-ghost">View Archive</a>}
   </div>
 
-  <div class="puzzle-grid">
-    <div class="clues-section">
-      <div class="clues-section-header">
-        <span class="clues-direction across">ACROSS</span>
+  <!-- Clues grid -->
+  <div class="puzzle-clues-grid">
+    <div class="clues-column">
+      <div class="clues-column-header">
+        <span class="clues-direction" style={`color:var(--color-across)`}>ACROSS</span>
+        <span class="clues-count">{across.length}</span>
       </div>
       <div class="clues-list">
-        {acrossEntries.map(([num, data]) => (
-          <div class="clue-row" data-answer={data.answer}>
-            <span class="clue-number across">{num}</span>
-            <span class="clue-text">{data.clue}</span>
-            <span class={`clue-answer ${showAnswers ? '' : 'hidden-answer'}`}>{data.answer}</span>
+        {across.map(entry => (
+          <div class="clue-row" data-answer={entry.answer}>
+            <span class="clue-num" style={`color:var(--color-across)`}>{entry.number}</span>
+            <span class="clue-text">{entry.clue}</span>
+            <span class={`clue-answer ${showAnswers ? '' : 'clue-hidden'}`}>{entry.answer}</span>
           </div>
         ))}
       </div>
     </div>
-
-    <div class="clues-section">
-      <div class="clues-section-header">
-        <span class="clues-direction down">DOWN</span>
+    <div class="clues-column">
+      <div class="clues-column-header">
+        <span class="clues-direction" style={`color:var(--color-down)`}>DOWN</span>
+        <span class="clues-count">{down.length}</span>
       </div>
       <div class="clues-list">
-        {downEntries.map(([num, data]) => (
-          <div class="clue-row" data-answer={data.answer}>
-            <span class="clue-number down">{num}</span>
-            <span class="clue-text">{data.clue}</span>
-            <span class={`clue-answer ${showAnswers ? '' : 'hidden-answer'}`}>{data.answer}</span>
+        {down.map(entry => (
+          <div class="clue-row" data-answer={entry.answer}>
+            <span class="clue-num" style={`color:var(--color-down)`}>{entry.number}</span>
+            <span class="clue-text">{entry.clue}</span>
+            <span class={`clue-answer ${showAnswers ? '' : 'clue-hidden'}`}>{entry.answer}</span>
           </div>
         ))}
       </div>
@@ -92,26 +114,28 @@ function formatDate(dateStr: string): string {
   const btn = document.getElementById('toggleAnswersBtn');
   btn?.addEventListener('click', () => {
     const answers = document.querySelectorAll('.clue-answer');
-    const isShowing = btn.getAttribute('data-show') === 'true';
-    answers.forEach(a => a.classList.toggle('hidden-answer', isShowing));
-    btn.setAttribute('data-show', isShowing ? 'false' : 'true');
-    btn.innerHTML = isShowing
-      ? `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3C4.5 3 1.7 5.1 0 8c1.7 2.9 4.5 5 8 5s6.3-2.1 8-5c-1.7-2.9-4.5-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> Show Answers`
-      : `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.2 2.8L2.8 13.2M2.8 2.8l10.4 10.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Hide Answers`;
+    const isShowing = btn.getAttribute('data-show') === '1';
+    answers.forEach(a => a.classList.toggle('clue-hidden', isShowing));
+    btn.setAttribute('data-show', isShowing ? '0' : '1');
+    const textEl = btn.querySelector('.toggle-text');
+    if (textEl) textEl.textContent = isShowing ? 'Show Answers' : 'Hide Answers';
   });
 </script>
 
 <style>
-  .puzzle-display {
-    max-width: 900px;
+  .puzzle-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    max-width: 960px;
     margin: 0 auto;
   }
 
-  .puzzle-header {
-    margin-bottom: 32px;
-  }
+  .puzzle-card-header { margin-bottom: 24px; }
 
-  .puzzle-meta {
+  .puzzle-meta-row {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -119,177 +143,147 @@ function formatDate(dateStr: string): string {
     flex-wrap: wrap;
   }
 
-  .puzzle-subtitle {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-  }
-
-  .puzzle-title {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 12px;
-    background: linear-gradient(135deg, var(--color-text), var(--color-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .puzzle-stats {
-    display: flex;
-    gap: 20px;
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .puzzle-date {
     color: var(--color-text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 500;
   }
 
-  .stat-icon {
-    font-weight: 700;
-    font-size: 1rem;
+  .puzzle-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--color-text);
+    margin-bottom: 12px;
+    line-height: 1.2;
   }
 
-  .across-icon {
-    color: var(--color-across);
-  }
-
-  .down-icon {
-    color: var(--color-down);
-  }
-
-  .puzzle-actions-bar {
+  .puzzle-meta-details {
     display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
+    align-items: center;
+    gap: 16px;
     flex-wrap: wrap;
   }
 
-  .puzzle-grid {
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .meta-item svg { opacity: 0.6; }
+
+  .puzzle-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+  }
+
+  .puzzle-clues-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 32px;
   }
 
-  .clues-section-header {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+  .clues-column-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 2px solid var(--color-border);
   }
 
   .clues-direction {
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     letter-spacing: 2px;
     text-transform: uppercase;
   }
 
-  .clues-direction.across {
-    color: var(--color-across);
-  }
-
-  .clues-direction.down {
-    color: var(--color-down);
+  .clues-count {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--color-tag-bg);
+    color: var(--color-tag);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
   }
 
   .clues-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
 
   .clue-row {
     display: grid;
-    grid-template-columns: 36px 1fr auto;
+    grid-template-columns: 32px 1fr auto;
     gap: 8px;
     align-items: baseline;
-    padding: 10px 12px;
+    padding: 9px 12px;
     border-radius: var(--radius-sm);
-    transition: background 0.15s ease;
+    transition: background 0.1s;
   }
+  .clue-row:hover { background: var(--color-accent-light); }
 
-  .clue-row:hover {
-    background: var(--color-accent-light);
-  }
-
-  .clue-number {
+  .clue-num {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-family: var(--font-mono);
-  }
-
-  .clue-number.across {
-    color: var(--color-across);
-  }
-
-  .clue-number.down {
-    color: var(--color-down);
   }
 
   .clue-text {
     color: var(--color-text);
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     line-height: 1.5;
   }
 
   .clue-answer {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-family: var(--font-mono);
     color: var(--color-success);
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-align: right;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
     white-space: nowrap;
   }
 
-  .hidden-answer {
+  .clue-hidden {
     color: transparent;
-    background: var(--color-bg-card);
+    background: var(--color-tag-bg);
     border-radius: 4px;
-    filter: blur(4px);
     user-select: none;
-    min-width: 60px;
+    min-width: 50px;
+    letter-spacing: 0;
+    text-align: center;
+    position: relative;
   }
-
-  .hidden-answer:hover {
-    filter: blur(0);
-    color: var(--color-success);
-    background: transparent;
+  .clue-hidden::after {
+    content: '???';
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    font-family: var(--font-sans);
   }
 
   @media (max-width: 768px) {
-    .puzzle-grid {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .puzzle-title {
-      font-size: 1.5rem;
-    }
-
-    .clue-row {
-      grid-template-columns: 30px 1fr;
-      gap: 6px;
-    }
-
-    .clue-answer {
-      grid-column: 2;
-      text-align: left;
-    }
-
-    .hidden-answer {
-      min-width: 50px;
-    }
+    .puzzle-card { padding: 20px; border-radius: var(--radius-md); }
+    .puzzle-clues-grid { grid-template-columns: 1fr; gap: 24px; }
+    .puzzle-title { font-size: 1.35rem; }
+    .clue-row { grid-template-columns: 28px 1fr; gap: 6px; }
+    .clue-answer { grid-column: 2; text-align: left; }
   }
 
   @media (max-width: 480px) {
-    .puzzle-title {
-      font-size: 1.3rem;
-    }
+    .puzzle-card { padding: 16px; }
+    .puzzle-title { font-size: 1.15rem; }
   }
 </style>

@@ -3,18 +3,18 @@ import MainLayout from '../layouts/MainLayout.astro';
 import CrosswordSolver from '../components/CrosswordSolver.svelte';
 ---
 
-<MainLayout title="Crossword Solver" description="Free crossword solver tool. Enter any clue with an optional letter pattern to find answers instantly.">
+<MainLayout title="Crossword Solver" description="Free crossword solver tool. Enter any clue with an optional letter pattern to find answers instantly from multiple archives.">
   <section class="page-section">
     <div class="container">
-      <div class="page-breadcrumb">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a>
-        <span class="breadcrumb-sep">/</span>
+        <span class="bc-sep">/</span>
         <span>Crossword Solver</span>
-      </div>
+      </nav>
 
       <CrosswordSolver client:load />
 
-      <div class="page-content-section">
+      <div class="content-section">
         <h2 class="content-heading">How Our Crossword Solver Works</h2>
         <p class="content-text">
           Our crossword solver searches through millions of clues from multiple archives and databases to find the best matching answers. When you enter a clue, we first check our internal archive of NYT Crossword and NYT Mini Crossword solutions for exact matches. If we find answers there, we return them immediately with historical data showing how many times that clue-answer pair has appeared.
@@ -33,51 +33,12 @@ import CrosswordSolver from '../components/CrosswordSolver.svelte';
 </MainLayout>
 
 <style>
-  .page-section {
-    padding: 0 0 48px;
-  }
-
-  .page-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    padding-top: 16px;
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-  }
-
-  .page-breadcrumb a {
-    color: var(--color-text-muted);
-    transition: color 0.2s;
-  }
-
-  .page-breadcrumb a:hover {
-    color: var(--color-accent);
-  }
-
-  .breadcrumb-sep {
-    color: var(--color-border-light);
-  }
-
-  .page-content-section {
-    max-width: 800px;
-    margin: 0 auto;
-    padding-top: 32px;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .content-heading {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--color-text);
-  }
-
-  .content-text {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.8;
-    margin-bottom: 16px;
-  }
+  .page-section { padding: 0 0 48px; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 20px; padding-top: 16px; font-size: 0.82rem; color: var(--color-text-muted); }
+  .breadcrumb a { color: var(--color-text-muted); }
+  .breadcrumb a:hover { color: var(--color-accent); }
+  .bc-sep { color: var(--color-border); }
+  .content-section { max-width: 800px; margin: 0 auto; padding-top: 28px; border-top: 1px solid var(--color-border); }
+  .content-heading { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
+  .content-text { color: var(--color-text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 14px; }
 </style>

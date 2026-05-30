@@ -5,30 +5,24 @@ import { CROSSWORD_SOURCES } from '../lib/api';
 <header class="header">
   <div class="header-inner container">
     <a href="/" class="logo">
-      <span class="logo-icon">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <rect x="2" y="2" width="12" height="12" rx="2" fill="#6c5ce7"/>
-          <rect x="18" y="2" width="12" height="12" rx="2" fill="#00cec9"/>
-          <rect x="2" y="18" width="12" height="12" rx="2" fill="#00cec9"/>
-          <rect x="18" y="18" width="12" height="12" rx="2" fill="#6c5ce7"/>
-        </svg>
-      </span>
-      <span class="logo-text">Crossword<span class="logo-highlight">Solver</span></span>
+      <span class="logo-mark">CW</span>
+      <span class="logo-text">Crossword<span class="logo-dot">Solver</span></span>
     </a>
 
     <nav class="desktop-nav">
       <a href="/" class="nav-link">Home</a>
       <a href="/nyt-crossword-answer-today" class="nav-link">NYT Crossword</a>
       <a href="/nyt-mini-crossword-answer-today" class="nav-link">NYT Mini</a>
-      <a href="/crossword-solver" class="nav-link nav-link--solver">Solver</a>
+      <a href="/crossword-solver" class="nav-link nav-link--accent">Solver</a>
       <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" aria-expanded="false">
-          More <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4"/></svg>
+        <button class="nav-link nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+          More
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5l3 3 3-3"/></svg>
         </button>
-        <div class="nav-dropdown-menu">
-          {CROSSWORD_SOURCES.filter(s => s.family !== 'nyt').map(source => (
-            <a href={source.path} class="nav-dropdown-item">
-              <span class="dropdown-icon">{source.icon}</span>
+        <div class="nav-dropdown-menu" role="menu">
+          {CROSSWORD_SOURCES.filter(s => !['nyt-daily','nyt-mini'].includes(s.slug)).map(source => (
+            <a href={source.todayPath} class="nav-dropdown-item" role="menuitem">
+              <span class="dropdown-dot" style={`background:${source.color}`}></span>
               {source.name}
             </a>
           ))}
@@ -38,13 +32,11 @@ import { CROSSWORD_SOURCES } from '../lib/api';
 
     <div class="header-actions">
       <a href="/crossword-solver" class="btn btn-primary header-cta">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
         Solve
       </a>
-
-      <!-- 3-dot mobile menu button -->
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="2"/>
           <circle cx="12" cy="12" r="2"/>
           <circle cx="12" cy="19" r="2"/>
@@ -53,42 +45,25 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     </div>
   </div>
 
-  <!-- Mobile menu overlay -->
-  <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
 
-  <!-- Mobile menu panel -->
-  <div class="mobile-menu" id="mobileMenu">
-    <div class="mobile-menu-header">
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation menu">
+    <div class="mobile-menu-head">
       <span class="mobile-menu-title">Menu</span>
-      <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <button class="mobile-close-btn" id="mobileMenuClose" aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l10 10M15 5L5 15"/></svg>
       </button>
     </div>
-
     <nav class="mobile-nav">
-      <a href="/" class="mobile-nav-link">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l8 6v10h-5v-6H6v6H1V7l8-6z"/></svg>
-        Home
-      </a>
-      <a href="/nyt-crossword-answer-today" class="mobile-nav-link">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M2 2h14v14H2V2zm2 2v10h10V4H4z"/></svg>
-        NYT Crossword
-      </a>
-      <a href="/nyt-mini-crossword-answer-today" class="mobile-nav-link">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M3 3h5v5H3V3zm7 0h5v5h-5V3zM3 10h5v5H3v-5zm7 0h5v5h-5v-5z"/></svg>
-        NYT Mini
-      </a>
-      <a href="/crossword-solver" class="mobile-nav-link mobile-nav-link--solver">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
-        Crossword Solver
-      </a>
-
+      <a href="/" class="mobile-nav-item">Home</a>
+      <a href="/nyt-crossword-answer-today" class="mobile-nav-item">NYT Crossword</a>
+      <a href="/nyt-mini-crossword-answer-today" class="mobile-nav-item">NYT Mini</a>
+      <a href="/crossword-solver" class="mobile-nav-item mobile-nav-accent">Crossword Solver</a>
       <div class="mobile-nav-divider"></div>
-      <div class="mobile-nav-section-title">More Puzzles</div>
-
-      {CROSSWORD_SOURCES.filter(s => s.family !== 'nyt').map(source => (
-        <a href={source.path} class="mobile-nav-link">
-          <span class="mobile-nav-icon">{source.icon}</span>
+      <div class="mobile-nav-label">More Puzzles</div>
+      {CROSSWORD_SOURCES.filter(s => !['nyt-daily','nyt-mini'].includes(s.slug)).map(source => (
+        <a href={source.todayPath} class="mobile-nav-item">
+          <span class="mobile-nav-dot" style={`background:${source.color}`}></span>
           {source.name}
         </a>
       ))}
@@ -102,48 +77,35 @@ import { CROSSWORD_SOURCES } from '../lib/api';
   const overlay = document.getElementById('mobileOverlay');
   const menu = document.getElementById('mobileMenu');
 
-  function openMenu() {
+  function open() {
     menuBtn?.setAttribute('aria-expanded', 'true');
     menu?.classList.add('open');
     overlay?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
-
-  function closeMenu() {
+  function close() {
     menuBtn?.setAttribute('aria-expanded', 'false');
     menu?.classList.remove('open');
     overlay?.classList.remove('open');
     document.body.style.overflow = '';
   }
 
-  menuBtn?.addEventListener('click', openMenu);
-  closeBtn?.addEventListener('click', closeMenu);
-  overlay?.addEventListener('click', closeMenu);
+  menuBtn?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+  overlay?.addEventListener('click', close);
 
-  // Desktop dropdown
   document.querySelectorAll('.nav-dropdown-trigger').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const trigger = e.currentTarget as HTMLElement;
-      const dropdown = trigger.parentElement;
-      const menu = dropdown?.querySelector('.nav-dropdown-menu') as HTMLElement;
-      const isOpen = menu?.classList.contains('open');
-
-      // Close all dropdowns first
-      document.querySelectorAll('.nav-dropdown-menu.open').forEach(m => m.classList.remove('open'));
-
-      if (!isOpen && menu) {
-        menu.classList.add('open');
-        trigger.setAttribute('aria-expanded', 'true');
-      } else {
-        trigger.setAttribute('aria-expanded', 'false');
-      }
+      const dd = trigger.parentElement;
+      const m = dd?.querySelector('.nav-dropdown-menu') as HTMLElement;
+      const isOpen = m?.classList.contains('open');
+      document.querySelectorAll('.nav-dropdown-menu.open').forEach(x => x.classList.remove('open'));
+      if (!isOpen && m) m.classList.add('open');
     });
   });
-
-  // Close dropdown on click outside
   document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest('.nav-dropdown')) {
+    if (!(e.target as HTMLElement).closest('.nav-dropdown')) {
       document.querySelectorAll('.nav-dropdown-menu.open').forEach(m => m.classList.remove('open'));
     }
   });
@@ -156,12 +118,11 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     left: 0;
     right: 0;
     height: var(--header-height);
-    background: rgba(10, 10, 15, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-border);
     z-index: 1000;
-    transition: background 0.3s ease;
   }
 
   .header-inner {
@@ -169,7 +130,7 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     align-items: center;
     justify-content: space-between;
     height: 100%;
-    gap: 24px;
+    gap: 20px;
   }
 
   .logo {
@@ -177,29 +138,31 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     align-items: center;
     gap: 10px;
     color: var(--color-text);
-    text-decoration: none;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
+    text-decoration: none;
   }
-
-  .logo-icon {
+  .logo-mark {
     display: flex;
     align-items: center;
-  }
-
-  .logo-text {
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--color-accent);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 800;
     letter-spacing: -0.5px;
   }
-
-  .logo-highlight {
-    color: var(--color-accent);
-  }
+  .logo-text { letter-spacing: -0.5px; }
+  .logo-dot { color: var(--color-accent); }
 
   .desktop-nav {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
   }
 
   .nav-link {
@@ -209,86 +172,73 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     padding: 8px 14px;
     border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
-    font-size: 0.88rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.15s;
     background: none;
     border: none;
     cursor: pointer;
     white-space: nowrap;
   }
-
   .nav-link:hover {
     color: var(--color-text);
     background: var(--color-accent-light);
   }
-
-  .nav-link--solver {
+  .nav-link--accent {
     color: var(--color-accent);
     font-weight: 600;
   }
 
-  .nav-link--solver:hover {
-    color: var(--color-accent-hover);
-  }
-
-  .nav-dropdown {
-    position: relative;
-  }
-
-  .nav-dropdown-trigger svg {
-    transition: transform 0.2s ease;
-  }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-trigger svg { transition: transform 0.15s; }
 
   .nav-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     right: 0;
     min-width: 220px;
-    background: var(--color-bg-card);
+    background: var(--color-surface-raised);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 6px;
     box-shadow: var(--shadow-lg);
     display: none;
-    animation: slideDown 0.2s ease;
+    animation: slideDown 0.15s ease;
     z-index: 100;
-    max-height: 400px;
+    max-height: 380px;
     overflow-y: auto;
   }
-
-  .nav-dropdown-menu.open {
-    display: block;
-  }
+  .nav-dropdown-menu.open { display: block; }
 
   .nav-dropdown-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
+    padding: 9px 14px;
     border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
-    font-size: 0.88rem;
-    transition: all 0.15s ease;
+    font-size: 0.85rem;
+    transition: all 0.1s;
   }
-
   .nav-dropdown-item:hover {
     background: var(--color-accent-light);
     color: var(--color-text);
   }
 
-  .dropdown-icon {
-    font-size: 1.1rem;
+  .dropdown-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .header-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
-
   .header-cta {
-    padding: 8px 16px;
+    padding: 8px 18px;
     font-size: 0.85rem;
   }
 
@@ -300,119 +250,94 @@ import { CROSSWORD_SOURCES } from '../lib/api';
     height: 40px;
     border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
-    background: transparent;
-    transition: all 0.2s ease;
   }
-
   .mobile-menu-btn:hover {
     color: var(--color-text);
     background: var(--color-accent-light);
   }
 
-  .mobile-menu-overlay {
+  .mobile-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.3);
     z-index: 1001;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s;
   }
-
-  .mobile-menu-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
+  .mobile-overlay.open { opacity: 1; pointer-events: all; }
 
   .mobile-menu {
     position: fixed;
     top: 0;
     right: 0;
-    width: min(320px, 85vw);
+    width: min(300px, 85vw);
     height: 100vh;
-    background: var(--color-bg-secondary);
+    background: var(--color-bg);
     border-left: 1px solid var(--color-border);
     z-index: 1002;
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
   }
+  .mobile-menu.open { transform: translateX(0); }
 
-  .mobile-menu.open {
-    transform: translateX(0);
-  }
-
-  .mobile-menu-header {
+  .mobile-menu-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
     border-bottom: 1px solid var(--color-border);
   }
-
   .mobile-menu-title {
     font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--color-text);
+    font-size: 1.05rem;
   }
-
-  .mobile-menu-close {
+  .mobile-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
-    background: transparent;
-    transition: all 0.2s ease;
   }
+  .mobile-close-btn:hover { background: var(--color-accent-light); }
 
-  .mobile-menu-close:hover {
-    color: var(--color-text);
-    background: var(--color-accent-light);
-  }
-
-  .mobile-nav {
-    padding: 12px;
-  }
-
-  .mobile-nav-link {
+  .mobile-nav { padding: 10px; }
+  .mobile-nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 10px;
+    padding: 11px 14px;
     border-radius: var(--radius-sm);
     color: var(--color-text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 500;
-    transition: all 0.15s ease;
+    transition: all 0.1s;
   }
-
-  .mobile-nav-link:hover {
+  .mobile-nav-item:hover {
     background: var(--color-accent-light);
     color: var(--color-text);
   }
-
-  .mobile-nav-link--solver {
+  .mobile-nav-accent {
     color: var(--color-accent);
     font-weight: 600;
   }
-
-  .mobile-nav-icon {
-    font-size: 1.2rem;
+  .mobile-nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
-
   .mobile-nav-divider {
     height: 1px;
     background: var(--color-border);
-    margin: 8px 14px;
+    margin: 6px 14px;
   }
-
-  .mobile-nav-section-title {
+  .mobile-nav-label {
     padding: 8px 14px 4px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -420,22 +345,8 @@ import { CROSSWORD_SOURCES } from '../lib/api';
   }
 
   @media (max-width: 900px) {
-    .desktop-nav {
-      display: none;
-    }
-
-    .mobile-menu-btn {
-      display: flex;
-    }
-
-    .header-cta {
-      display: none;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .logo-text {
-      font-size: 1rem;
-    }
+    .desktop-nav { display: none; }
+    .mobile-menu-btn { display: flex; }
+    .header-cta { display: none; }
   }
 </style>

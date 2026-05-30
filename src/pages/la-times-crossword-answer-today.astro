@@ -1,61 +1,81 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import PuzzleDisplay from '../components/PuzzleDisplay.astro';
-import { fetchLatestPuzzle, API_BASES, CROSSWORD_SOURCES } from '../lib/api';
+import { fetchLatestPuzzle, CROSSWORD_SOURCES } from '../lib/api';
 
 const source = CROSSWORD_SOURCES.find(s => s.slug === 'latimes-daily')!;
-let puzzleData = null;
-let puzzleDate = '';
+let puzzle = null;
 let error = '';
 
 try {
-  const data = await fetchLatestPuzzle(source.baseUrl);
-  if (data.success && data.data) {
-    puzzleData = data.data;
-    puzzleDate = data.date || '';
-  } else {
-    error = 'No puzzle found for today.';
-  }
+  puzzle = await fetchLatestPuzzle(source.baseUrl);
+  if (!puzzle) error = 'No puzzle found for today. Check back later!';
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
 ---
 
-<MainLayout title="LA Times Crossword Answers Today" description="Today's LA Times Crossword crossword answers and solutions.">
+<MainLayout title="LA Times Crossword Answers Today" description="Today's LA Times Crossword answers and solutions.">
   <section class="page-section">
     <div class="container">
-      <div class="page-breadcrumb">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a>
-        <span class="breadcrumb-sep">/</span>
+        <span class="bc-sep">/</span>
         <span>LA Times Daily</span>
-      </div>
-      {puzzleData ? (
-        <PuzzleDisplay date={puzzleDate} title="LA Times Crossword Answers Today" subtitle="The Los Angeles Times daily crossword — west coast flair meets classic cluing" across={puzzleData.across || {}} down={puzzleData.down || {}} showAnswers={true} />
+      </nav>
+
+      {puzzle ? (
+        <PuzzleDisplay
+          date={puzzle.date}
+          formattedDate={puzzle.formattedDate}
+          title={puzzle.title || 'LA Times Crossword Answers Today'}
+          author={puzzle.author}
+          editor={puzzle.editor}
+          dayOfWeek={puzzle.dayOfWeek}
+          across={puzzle.across}
+          down={puzzle.down}
+          showAnswers={true}
+          sourceColor={source.color}
+          archiveLink="/la-times-crossword-archive"
+        />
       ) : (
         <div class="error-state">
+          <div class="error-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="#d93025" stroke-width="2"/>
+              <path d="M24 16v12M24 32v2" stroke="#d93025" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
           <h2 class="error-title">Unable to Load Puzzle</h2>
           <p class="error-msg">{error}</p>
           <a href="/" class="btn btn-secondary">Back to Home</a>
         </div>
       )}
-      <div class="page-content-section">
+
+      <div class="content-section">
         <h2 class="content-heading">About the LA Times Daily</h2>
-        <p class="content-text">The Los Angeles Times daily crossword — west coast flair meets classic cluing. Our page provides the complete answers for today's LA Times Daily crossword. Whether you need help with a tricky clue or want to verify your completed puzzle, we have accurate and up-to-date solutions ready for you.</p>
+        <p class="content-text">{source.description}. Our page provides the complete answers for today's puzzle, organized by Across and Down clues.</p>
+        <div class="content-links">
+          <a href="/la-times-crossword-archive" class="btn btn-ghost">Browse Archive</a>
+          <a href="/crossword-solver" class="btn btn-ghost">Open Solver</a>
+        </div>
       </div>
     </div>
   </section>
 </MainLayout>
 
 <style>
-  .page-section { padding: 32px 0 48px; }
-  .page-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 0.85rem; color: var(--color-text-muted); }
-  .page-breadcrumb a { color: var(--color-text-muted); }
-  .page-breadcrumb a:hover { color: var(--color-accent); }
-  .breadcrumb-sep { color: var(--color-border-light); }
-  .error-state { text-align: center; padding: 64px 24px; max-width: 500px; margin: 0 auto; }
-  .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
-  .error-msg { color: var(--color-text-muted); margin-bottom: 24px; line-height: 1.6; }
-  .page-content-section { margin-top: 48px; max-width: 800px; margin-left: auto; margin-right: auto; }
-  .content-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
-  .content-text { color: var(--color-text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 16px; }
+  .page-section { padding: 24px 0 48px; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 20px; font-size: 0.82rem; color: var(--color-text-muted); }
+  .breadcrumb a { color: var(--color-text-muted); }
+  .breadcrumb a:hover { color: var(--color-accent); }
+  .bc-sep { color: var(--color-border); }
+  .error-state { text-align: center; padding: 56px 24px; max-width: 480px; margin: 0 auto; background: var(--color-bg-card); border-radius: var(--radius-lg); border: 1px solid var(--color-border); }
+  .error-icon { margin-bottom: 16px; }
+  .error-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+  .error-msg { color: var(--color-text-muted); margin-bottom: 20px; line-height: 1.6; font-size: 0.9rem; }
+  .content-section { margin-top: 40px; max-width: 760px; margin-left: auto; margin-right: auto; }
+  .content-heading { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
+  .content-text { color: var(--color-text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 14px; }
+  .content-links { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
 </style>
