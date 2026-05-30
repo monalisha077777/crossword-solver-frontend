@@ -254,7 +254,7 @@ export interface NormalizedPuzzle {
 
 /** Fetch latest puzzle from a standard archive worker and normalize */
 export async function fetchLatestPuzzle(baseUrl: string): Promise<NormalizedPuzzle | null> {
-  const res = await fetch(`${baseUrl}/api/puzzle/latest`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${baseUrl}/api/puzzle/latest`);
   if (!res.ok) return null;
   const json: StandardPuzzleResponse = await res.json();
   if (!json.success || !json.data) return null;
@@ -263,7 +263,7 @@ export async function fetchLatestPuzzle(baseUrl: string): Promise<NormalizedPuzz
 
 /** Fetch puzzle by date from a standard archive worker */
 export async function fetchPuzzleByDate(baseUrl: string, date: string): Promise<NormalizedPuzzle | null> {
-  const res = await fetch(`${baseUrl}/api/puzzle/${date}`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${baseUrl}/api/puzzle/${date}`);
   if (!res.ok) return null;
   const json: StandardPuzzleResponse = await res.json();
   if (!json.success || !json.data) return null;
@@ -272,7 +272,7 @@ export async function fetchPuzzleByDate(baseUrl: string, date: string): Promise<
 
 /** Fetch latest NYT Mini puzzle and normalize */
 export async function fetchLatestMiniPuzzle(): Promise<NormalizedPuzzle | null> {
-  const res = await fetch(`${API_BASES.nytMini}/today`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${API_BASES.nytMini}/today`);
   if (!res.ok) return null;
   const json: MiniPuzzleResponse = await res.json();
   if (!json.success || !json.data) return null;
@@ -281,7 +281,7 @@ export async function fetchLatestMiniPuzzle(): Promise<NormalizedPuzzle | null> 
 
 /** Fetch NYT Mini by date */
 export async function fetchMiniPuzzleByDate(date: string): Promise<NormalizedPuzzle | null> {
-  const res = await fetch(`${API_BASES.nytMini}/date?date=${date}`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${API_BASES.nytMini}/date?date=${date}`);
   if (!res.ok) return null;
   const json: MiniPuzzleResponse = await res.json();
   if (!json.success || !json.data) return null;
@@ -290,7 +290,7 @@ export async function fetchMiniPuzzleByDate(date: string): Promise<NormalizedPuz
 
 /** List NYT Mini puzzle dates */
 export async function listMiniPuzzles(page = 1, limit = 20) {
-  const res = await fetch(`${API_BASES.nytMini}/list?page=${page}&limit=${limit}`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${API_BASES.nytMini}/list?page=${page}&limit=${limit}`);
   if (!res.ok) return null;
   return res.json();
 }
@@ -299,7 +299,7 @@ export async function listMiniPuzzles(page = 1, limit = 20) {
 export async function solveClue(clue: string, pattern?: string): Promise<SolveResult> {
   const params = new URLSearchParams({ clue });
   if (pattern) params.set('pattern', pattern);
-  const res = await fetch(`${API_BASES.solver}/solve?${params}`, { next: { revalidate: 600 } });
+  const res = await fetch(`${API_BASES.solver}/solve?${params}`);
   if (!res.ok) throw new Error(`Solver failed: ${res.status}`);
   return res.json();
 }
