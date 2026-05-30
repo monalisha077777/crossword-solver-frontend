@@ -13,6 +13,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout title="Guardian Quick Crossword Answers Today" description="Today's Guardian Quick Crossword answers and solutions.">

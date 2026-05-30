@@ -13,6 +13,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch mini puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout

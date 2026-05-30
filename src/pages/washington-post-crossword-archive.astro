@@ -30,6 +30,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout title="Washington Post Crossword Archive" description="Browse the complete archive of Washington Post Crossword answers. Search by date to find past puzzle solutions.">

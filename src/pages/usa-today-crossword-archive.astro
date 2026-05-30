@@ -30,6 +30,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout title="USA Today Crossword Archive" description="Browse the complete archive of USA Today Crossword answers. Search by date to find past puzzle solutions.">

@@ -30,6 +30,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout title="Guardian Cryptic Crossword Archive" description="Browse the complete archive of Guardian Cryptic Crossword answers. Search by date to find past puzzle solutions.">

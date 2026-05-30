@@ -30,6 +30,8 @@ try {
 } catch (e: any) {
   error = e.message || 'Failed to fetch puzzle data.';
 }
+
+export const prerender = false;
 ---
 
 <MainLayout title="NYT Mini Crossword Archive" description="Browse the complete archive of NYT Mini Crossword answers. Search by date to find past mini puzzle solutions.">
